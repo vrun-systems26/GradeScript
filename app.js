@@ -269,6 +269,37 @@ rule MyDetection {
     dot.addEventListener("click", () => goToSlide(Number(dot.dataset.goto)));
   });
 
+  // ---- Title decode/glitch animation: letters cycle through 0/1 before resolving ----
+
+  function scrambleLetter(el, finalChar, startDelay) {
+    const pool = "01";
+    const scrambleDuration = 500 + Math.random() * 300;
+    const intervalMs = 45;
+    el.classList.add("scrambling");
+    setTimeout(() => {
+      const startedAt = Date.now();
+      const iv = setInterval(() => {
+        if (Date.now() - startedAt >= scrambleDuration) {
+          clearInterval(iv);
+          el.textContent = finalChar;
+          el.classList.remove("scrambling");
+        } else {
+          el.textContent = pool[Math.floor(Math.random() * pool.length)];
+        }
+      }, intervalMs);
+    }, startDelay);
+  }
+
+  function runTitleScramble() {
+    const letters = Array.from(document.querySelectorAll("#landing-title .letter"));
+    letters.forEach((el, i) => {
+      const finalChar = el.dataset.char;
+      scrambleLetter(el, finalChar, i * 70);
+    });
+  }
+
+  runTitleScramble();
+
   // ---- Help panel ----
 
   const helpBtn = document.getElementById("help-btn");

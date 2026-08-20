@@ -118,16 +118,17 @@ body {
   font-weight: 800;
   margin: 0 0 18px;
   color: var(--text);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  line-height: 0.82;
+  line-height: 1;
+  font-size: clamp(48px, 10vw, 80px);
+  letter-spacing: -1.5px;
 }
 #landing-title .letter {
-  font-size: clamp(30px, 7.5vw, 54px);
-  letter-spacing: -1px;
+  display: inline-block;
+  min-width: 0.62em;
+  text-align: center;
 }
 #landing-title .letter.accent { color: var(--accent); }
+#landing-title .letter.scrambling { color: var(--accent-dim); }
 
 .landing-tagline {
   font-size: clamp(19px, 3vw, 26px);
