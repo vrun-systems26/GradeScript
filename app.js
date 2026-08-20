@@ -228,16 +228,45 @@ rule MyDetection {
     render();
   });
 
-  // ---- Landing screen ----
+  // ---- Landing screen: slides + fade into the app ----
 
   const landingScreen = document.getElementById("landing-screen");
-  const landingEnter = document.getElementById("landing-enter");
   const appContent = document.getElementById("app-content");
+  const landingSlides = Array.from(document.querySelectorAll(".landing-slide"));
+  const landingDots = Array.from(document.querySelectorAll(".landing-dot"));
+  const landingNext = document.getElementById("landing-next");
+  const totalSlides = landingSlides.length;
+  let currentSlide = 1;
 
-  landingEnter.addEventListener("click", () => {
-    landingScreen.classList.add("hidden");
+  function goToSlide(n) {
+    currentSlide = n;
+    landingSlides.forEach((s) => {
+      const isTarget = Number(s.dataset.slide) === n;
+      s.classList.toggle("active", isTarget);
+      if (isTarget) { s.style.animation = "none"; void s.offsetWidth; s.style.animation = ""; }
+    });
+    landingDots.forEach((d) => d.classList.toggle("active", Number(d.dataset.goto) === n));
+    landingNext.textContent = n === totalSlides ? "Open the playground →" : "Next →";
+  }
+
+  function enterApp() {
+    landingScreen.classList.add("fading-out");
     appContent.classList.remove("app-hidden");
-    editor.focus();
+    void appContent.offsetHeight; // force a reflow so the opacity transition below actually triggers
+    appContent.classList.add("app-visible");
+    setTimeout(() => {
+      landingScreen.classList.add("hidden");
+      editor.focus();
+    }, 400);
+  }
+
+  landingNext.addEventListener("click", () => {
+    if (currentSlide < totalSlides) goToSlide(currentSlide + 1);
+    else enterApp();
+  });
+
+  landingDots.forEach((dot) => {
+    dot.addEventListener("click", () => goToSlide(Number(dot.dataset.goto)));
   });
 
   // ---- Help panel ----

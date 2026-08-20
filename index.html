@@ -9,67 +9,85 @@
 <body>
   <div id="landing-screen">
     <div id="landing-card">
-      <div class="eyebrow">BUILT FOR SYNTAX SUMMIT &nbsp;·&nbsp; SUBMISSIONS CLOSE SEP 5</div>
-      <h1 id="landing-title">Shield<span>QL</span></h1>
-      <p class="landing-tagline">One rule in. Three security languages out.</p>
-      <p class="landing-explain">
-        Security teams hand-write the same detection rule for every tool they run.
-        <strong>ShieldQL is a tiny language that lets you write it once</strong> —
-        and generates the rest.
-      </p>
 
-      <div class="marquee-wrap">
-        <div class="marquee-track">
-          <span>LEXER</span><span>PARSER</span><span>AST</span><span>INTERPRETER</span><span>SPLUNK SPL</span><span>SIGMA YAML</span><span>ELASTIC EQL</span><span>ZERO DEPENDENCIES</span><span>LIVE TESTER</span>
-          <span aria-hidden="true">LEXER</span><span aria-hidden="true">PARSER</span><span aria-hidden="true">AST</span><span aria-hidden="true">INTERPRETER</span><span aria-hidden="true">SPLUNK SPL</span><span aria-hidden="true">SIGMA YAML</span><span aria-hidden="true">ELASTIC EQL</span><span aria-hidden="true">ZERO DEPENDENCIES</span><span aria-hidden="true">LIVE TESTER</span>
+      <section class="landing-slide active" data-slide="1">
+        <div class="eyebrow">BUILT FOR SYNTAX SUMMIT</div>
+        <h1 id="landing-title" aria-label="ShieldQL">
+          <span class="letter">S</span><span class="letter">h</span><span class="letter">i</span><span class="letter">e</span><span class="letter">l</span><span class="letter">d</span><span class="letter accent">Q</span><span class="letter accent">L</span>
+        </h1>
+        <p class="landing-tagline">One rule in. Three security languages out.</p>
+      </section>
+
+      <section class="landing-slide" data-slide="2">
+        <div class="eyebrow">THE IDEA</div>
+        <p class="landing-explain">
+          Security teams hand-write the same detection rule for every tool they run.
+          <strong>ShieldQL is a tiny language that lets you write it once</strong> —
+          and generates the rest.
+        </p>
+        <div class="marquee-wrap">
+          <div class="marquee-track">
+            <span>LEXER</span><span>PARSER</span><span>AST</span><span>INTERPRETER</span><span>SPLUNK SPL</span><span>SIGMA YAML</span><span>ELASTIC EQL</span><span>ZERO DEPENDENCIES</span><span>LIVE TESTER</span>
+            <span aria-hidden="true">LEXER</span><span aria-hidden="true">PARSER</span><span aria-hidden="true">AST</span><span aria-hidden="true">INTERPRETER</span><span aria-hidden="true">SPLUNK SPL</span><span aria-hidden="true">SIGMA YAML</span><span aria-hidden="true">ELASTIC EQL</span><span aria-hidden="true">ZERO DEPENDENCIES</span><span aria-hidden="true">LIVE TESTER</span>
+          </div>
         </div>
+        <div class="landing-compare">
+          <div class="landing-compare-col">
+            <span class="landing-compare-label bad">Today, without ShieldQL</span>
+            <div class="landing-compare-box">
+              <span>1 detection idea</span>
+              <span class="landing-compare-arrow">↓ written by hand, 3 times</span>
+              <span class="landing-compare-list">Splunk rule · Sigma rule · Elastic rule<br/><em>— can silently drift out of sync —</em></span>
+            </div>
+          </div>
+          <div class="landing-compare-col">
+            <span class="landing-compare-label good">With ShieldQL</span>
+            <div class="landing-compare-box good">
+              <span>1 detection idea</span>
+              <span class="landing-compare-arrow">↓ written once</span>
+              <span class="landing-compare-list">→ Splunk<br/>→ Sigma<br/>→ Elastic<br/><em>— generated, always in sync —</em></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="landing-slide" data-slide="3">
+        <div class="eyebrow">TRY IT IN 30 SECONDS</div>
+        <div class="landing-steps">
+          <div class="landing-step">
+            <span class="landing-step-icon">①</span>
+            <div>
+              <strong>Choose an example</strong>
+              <p>Use the dropdown, top right, once you're in.</p>
+            </div>
+          </div>
+          <div class="landing-step">
+            <span class="landing-step-icon">②</span>
+            <div>
+              <strong>Change one number</strong>
+              <p>Click into the rule and edit any value.</p>
+            </div>
+          </div>
+          <div class="landing-step">
+            <span class="landing-step-icon">③</span>
+            <div>
+              <strong>Watch results change</strong>
+              <p>The results re-check themselves instantly.</p>
+            </div>
+          </div>
+        </div>
+        <p class="landing-footnote">That's genuinely all you need to know before clicking in — everything else is labeled as you go.</p>
+      </section>
+
+      <div class="landing-nav">
+        <div class="landing-dots">
+          <button class="landing-dot active" data-goto="1" aria-label="Slide 1"></button>
+          <button class="landing-dot" data-goto="2" aria-label="Slide 2"></button>
+          <button class="landing-dot" data-goto="3" aria-label="Slide 3"></button>
+        </div>
+        <button id="landing-next" type="button">Next →</button>
       </div>
 
-      <div class="landing-compare">
-        <div class="landing-compare-col">
-          <span class="landing-compare-label bad">Today, without ShieldQL</span>
-          <div class="landing-compare-box">
-            <span>1 detection idea</span>
-            <span class="landing-compare-arrow">↓ written by hand, 3 times</span>
-            <span class="landing-compare-list">Splunk rule · Sigma rule · Elastic rule<br/><em>— can silently drift out of sync —</em></span>
-          </div>
-        </div>
-        <div class="landing-compare-col">
-          <span class="landing-compare-label good">With ShieldQL</span>
-          <div class="landing-compare-box good">
-            <span>1 detection idea</span>
-            <span class="landing-compare-arrow">↓ written once</span>
-            <span class="landing-compare-list">→ Splunk<br/>→ Sigma<br/>→ Elastic<br/><em>— generated, always in sync —</em></span>
-          </div>
-        </div>
-      </div>
-
-      <div class="eyebrow landing-steps-eyebrow">TRY IT IN 30 SECONDS</div>
-      <div class="landing-steps">
-        <div class="landing-step">
-          <span class="landing-step-icon">①</span>
-          <div>
-            <strong>Choose an example</strong>
-            <p>Use the dropdown, top right, once you're in.</p>
-          </div>
-        </div>
-        <div class="landing-step">
-          <span class="landing-step-icon">②</span>
-          <div>
-            <strong>Change one number</strong>
-            <p>Click into the rule and edit any value.</p>
-          </div>
-        </div>
-        <div class="landing-step">
-          <span class="landing-step-icon">③</span>
-          <div>
-            <strong>Watch results change</strong>
-            <p>The results re-check themselves instantly.</p>
-          </div>
-        </div>
-      </div>
-      <button id="landing-enter" type="button">Open the playground →</button>
-      <p class="landing-footnote">That's genuinely all you need to know before clicking in — everything else is labeled as you go.</p>
     </div>
   </div>
 
