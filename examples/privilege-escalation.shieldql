@@ -1,0 +1,12 @@
+// Flags a process spawned by a non-admin user that requests admin-level
+// privileges shortly after a suspicious download.
+rule PrivilegeEscalation {
+  when event.type == "process_start"
+    and event.requested_privilege == "admin"
+    and user.is_admin == false
+    and event.process contains "powershell"
+  within 5m
+  severity: critical
+  tags: "privilege-escalation", "endpoint"
+  description: "Non-admin user's PowerShell process requested admin privileges"
+}

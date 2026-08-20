@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>ShieldQL Playground</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <span class="logo">ShieldQL</span>
+    <span class="tagline">Write one detection rule. Get Splunk SPL, Sigma, and Elastic EQL — automatically, correctly.</span>
+    <div class="rule-select">
+      <label for="example-select">Load example:</label>
+      <select id="example-select"></select>
+    </div>
+  </header>
+
+  <main>
+    <div class="pane">
+      <div class="pane-header">rule.shieldql</div>
+      <div id="editor-wrap">
+        <pre id="highlight" aria-hidden="true"></pre>
+        <textarea id="editor" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+      </div>
+      <div id="status-bar" class="ok">Ready.</div>
+    </div>
+
+    <div class="pane">
+      <div class="pane-header">
+        Compiled output
+        <div class="tabs">
+          <button class="tab-btn active" data-target="splunk">Splunk SPL</button>
+          <button class="tab-btn" data-target="sigma">Sigma YAML</button>
+          <button class="tab-btn" data-target="eql">Elastic EQL</button>
+        </div>
+      </div>
+      <div id="output-wrap"><pre id="output"></pre></div>
+    </div>
+
+    <div class="pane bottom-panes">
+      <div class="pane-header">Live test run — interpreter evaluated against sample log events</div>
+      <div id="test-results"></div>
+    </div>
+  </main>
+
+  <footer>
+    Zero install: this whole playground is one static HTML file + engine.js, no build step, no network calls.
+    See <a href="LANGUAGE.md" style="color:var(--accent)">LANGUAGE.md</a> for the full syntax reference.
+  </footer>
+
+  <script src="engine.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

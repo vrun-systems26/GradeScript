@@ -1,0 +1,12 @@
+// Flags unusually large outbound transfers to a destination outside the
+// corporate network, especially outside business hours.
+rule DataExfiltration {
+  when event.type == "network_transfer"
+    and event.bytes_out >= 500000000
+    and event.destination_internal == false
+    and event.is_business_hours == false
+  within 30m
+  severity: high
+  tags: "exfiltration", "insider-threat", "network"
+  description: "Large outbound transfer to an external destination outside business hours"
+}

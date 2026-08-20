@@ -1,0 +1,75 @@
+[
+  {
+    "label": "Credential stuffing — should MATCH",
+    "user": { "id": "u-101", "home_country": "US", "is_admin": false },
+    "event": {
+      "type": "login",
+      "failed_attempts": 7,
+      "country": "RO",
+      "travel_speed_kmh": 0,
+      "previous_country": "US"
+    }
+  },
+  {
+    "label": "Normal login — should NOT match",
+    "user": { "id": "u-102", "home_country": "US", "is_admin": false },
+    "event": {
+      "type": "login",
+      "failed_attempts": 0,
+      "country": "US",
+      "travel_speed_kmh": 0,
+      "previous_country": "US"
+    }
+  },
+  {
+    "label": "Impossible travel — should MATCH",
+    "user": { "id": "u-103", "home_country": "DE", "is_admin": false },
+    "event": {
+      "type": "login",
+      "failed_attempts": 0,
+      "country": "JP",
+      "travel_speed_kmh": 4200,
+      "previous_country": "DE"
+    }
+  },
+  {
+    "label": "Large but internal transfer — should NOT match exfiltration",
+    "user": { "id": "u-104", "home_country": "US", "is_admin": false },
+    "event": {
+      "type": "network_transfer",
+      "bytes_out": 900000000,
+      "destination_internal": true,
+      "is_business_hours": false
+    }
+  },
+  {
+    "label": "Data exfiltration — should MATCH",
+    "user": { "id": "u-105", "home_country": "US", "is_admin": false },
+    "event": {
+      "type": "network_transfer",
+      "bytes_out": 750000000,
+      "destination_internal": false,
+      "is_business_hours": false
+    }
+  },
+  {
+    "label": "Privilege escalation via PowerShell — should MATCH",
+    "user": { "id": "u-106", "home_country": "US", "is_admin": false },
+    "event": {
+      "type": "process_start",
+      "requested_privilege": "admin",
+      "process": "C:\\Windows\\System32\\powershell.exe -enc ...",
+      "bytes_out": 0
+    }
+  },
+  {
+    "label": "Admin using PowerShell — should NOT match",
+    "user": { "id": "u-107", "home_country": "US", "is_admin": true },
+    "event": {
+      "type": "process_start",
+      "requested_privilege": "admin",
+      "process": "powershell.exe -Command Get-Process",
+      "bytes_out": 0
+    }
+  }
+]
