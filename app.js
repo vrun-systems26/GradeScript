@@ -192,6 +192,18 @@ rule PrivilegeEscalation {
     render();
   });
 
+  // ---- Landing screen ----
+
+  const landingScreen = document.getElementById("landing-screen");
+  const landingEnter = document.getElementById("landing-enter");
+  const appContent = document.getElementById("app-content");
+
+  landingEnter.addEventListener("click", () => {
+    landingScreen.classList.add("hidden");
+    appContent.classList.remove("app-hidden");
+    editor.focus();
+  });
+
   // ---- Help panel + tip banner ----
 
   const helpBtn = document.getElementById("help-btn");

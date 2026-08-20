@@ -7,6 +7,46 @@
 <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <div id="landing-screen">
+    <div id="landing-card">
+      <div class="landing-badge">Built for Syntax Summit</div>
+      <h1 id="landing-title">Shield<span>QL</span></h1>
+      <p class="landing-tagline">Write your security rule once. Watch it speak three languages.</p>
+      <p class="landing-explain">
+        Security teams write the same "watch out for this" rule over and over — once for
+        each tool they use. <strong>ShieldQL is a tiny language that lets you write it just
+        once</strong>, and it automatically translates that one rule into the three different
+        formats real security tools understand.
+      </p>
+      <div class="landing-steps">
+        <div class="landing-step">
+          <span class="landing-step-icon">✏️</span>
+          <div>
+            <strong>Step 1 — Write</strong>
+            <p>Type one simple rule, like "flag it if someone fails their password 5 times."</p>
+          </div>
+        </div>
+        <div class="landing-step">
+          <span class="landing-step-icon">🔄</span>
+          <div>
+            <strong>Step 2 — Translate</strong>
+            <p>Instantly see that same rule rewritten in 3 real security-tool languages.</p>
+          </div>
+        </div>
+        <div class="landing-step">
+          <span class="landing-step-icon">🧪</span>
+          <div>
+            <strong>Step 3 — Test</strong>
+            <p>Watch it check itself against sample events live, right as you type.</p>
+          </div>
+        </div>
+      </div>
+      <button id="landing-enter" type="button">Open the playground →</button>
+      <p class="landing-footnote">Everything on the next screen is explained as you go — nothing to memorize first.</p>
+    </div>
+  </div>
+
+  <div id="app-content" class="app-hidden">
   <header>
     <div class="brand">
       <span class="logo">ShieldQL</span>
@@ -105,6 +145,7 @@
     Zero install: this whole playground is one static HTML file + engine.js, no build step, no network calls.
     See <a href="LANGUAGE.md">LANGUAGE.md</a> for the full syntax reference, or <a href="GLOSSARY.md">GLOSSARY.md</a> if a term here is unfamiliar.
   </footer>
+  </div>
 
   <script src="engine.js"></script>
   <script src="app.js"></script>

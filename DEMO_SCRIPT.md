@@ -1,134 +1,188 @@
-# Demo video script (structure only — narrate in your own words)
+# Demo video script — full narration, ~5 minutes
 
-Target: 5:00. This is scaffolding to adapt, not something to read verbatim —
-judges can tell, and you should be able to answer follow-up questions on
-anything you say here. Timestamps are approximate; leave yourself a little
-slack since talking-while-clicking always runs long.
+This is written so you can basically read it out loud and it'll make sense
+to someone who has never seen this project before. Practice it 2-3 times so
+it sounds like you, not like you're reading — but the words are all here so
+you don't have to improvise definitions on the spot.
 
-Before recording: have the playground open at `index.html` (or via
-`node serve.js`) with the "Credential Stuffing" example loaded, and a
-terminal ready with `node cli.js compile examples/impossible-travel.shieldql`
-typed but not yet run.
+Every unfamiliar term is defined **the moment it's said**, not before or
+after — so you never have to assume the viewer already knows what Splunk,
+Sigma, or a "rule" means.
+
+Before recording: open a fresh browser tab at `index.html` (or `node
+serve.js` → `http://localhost:5173`) so the very first thing on screen is
+the new landing page, not the tool itself. Have a terminal ready in the
+background for the CLI part near the end.
 
 ---
 
-## 0:00–0:25 — The problem (talking head or voiceover, no screen yet)
+## [0:00–0:15] Cold open — before you even share your screen
 
-> "Security teams don't run just one tool. A typical SOC uses Splunk,
-> maybe Sigma for sharing detection rules, maybe Elastic too. The problem
-> is nobody wants to write the same detection logic three times — once per
-> tool — because every rewrite is a chance to get it subtly wrong, and the
-> three copies drift out of sync over time.
+> "Hi, I'm [your name]. This is ShieldQL, my project for Syntax Summit."
+
+## [0:15–1:00] The landing page (screen: the welcome screen, untouched)
+
+*[Screen: the landing page — title, tagline, 3 steps, green button]*
+
+> "Before I touch any code, let me explain what this actually does, because
+> the name won't mean anything yet.
 >
-> So we built ShieldQL: a small language where you write a security
-> detection rule once, and it compiles into all three."
-
-## 0:25–1:00 — Introduce the playground
-
-*[Screen: index.html, header visible]*
-
-> "This is the ShieldQL playground — one HTML file, zero installs, zero
-> build step. On the left is the rule editor. On the right is the compiled
-> output. Let's load an example."
-
-*[Action: click the "Load example" dropdown, select "Credential Stuffing"]*
-
-> "This rule flags a login after 5+ failed attempts, from a country that
-> doesn't match the user's home country, within a 10-minute window."
-
-## 1:00–2:00 — Walk through the syntax
-
-*[Screen: point at each part of the rule in the editor as you say it]*
-
-> "Every rule has a name, a `when` clause — that's the actual logic, built
-> from `and`, `or`, `not`, and comparisons like `>=` and `!=` — and some
-> metadata: `within` for a time window, `severity`, `tags`, and a plain
-> `description`.
+> Big security companies — like **Splunk** and **Elastic** — sell tools
+> that watch over a company's computers. Every time someone logs in, opens
+> a file, or does basically anything, it gets written down, and these
+> tools let a security team search through all of that and set up alarms
+> for suspicious behavior.
 >
-> Fields are dotted paths — `event.failed_attempts`, `user.home_country` —
-> so the rule reads almost like a sentence: 'when the event type is login,
-> and failed attempts are 5 or more, and the country doesn't match the
-> user's home country.'"
-
-*[Action: point at the green status bar]*
-
-> "Down here, the status bar tells you the moment your rule successfully
-> parses — 'Parsed rule CredentialStuffing, severity high, within 10
-> minutes' — so you get instant feedback if you make a typo."
-
-## 2:00–2:45 — The three compiled outputs
-
-*[Action: click each output tab in turn: Splunk SPL, Sigma YAML, Elastic EQL]*
-
-> "This one rule compiles to three real query languages. Splunk SPL on the
-> left... Sigma YAML, the vendor-neutral format security teams share rules
-> in... and Elastic EQL.
+> There's also something called **Sigma** — that's not a company or a
+> tool, it's just a shared way of *writing down* an alarm idea on paper,
+> so people using different tools can trade ideas with each other.
 >
-> This isn't just string templating — each of these is generated from the
-> same parsed structure, called an AST, so the meaning can't drift between
-> tools. And where a translation is genuinely lossy — for example, Sigma
-> has no native way to compare two fields to each other — the generator
-> tells you that explicitly with a note, instead of silently producing a
-> rule that looks right but isn't."
-
-*[Action: point at a `# NOTE:` comment in the Sigma or Splunk output]*
-
-## 2:45–3:45 — Live edit (the key "wow" moment)
-
-*[Screen: scroll down to the "Live test run" panel — point out the 7 sample
-events and the "1 / 7 matched" counter]*
-
-> "Down here, the interpreter is running this exact rule against seven
-> sample security events in real time — logins, file transfers, process
-> starts. Right now it's catching the credential-stuffing pattern and
-> correctly ignoring the six benign ones.
+> Here's the problem: Splunk, Sigma, and Elastic each want that alarm
+> written in a totally different style. So today, a security person writes
+> the same alarm three separate times by hand — which is slow, and easy to
+> get wrong.
 >
-> Let's edit the rule live."
+> ShieldQL fixes that. You write the alarm once, in plain words, and it
+> automatically produces all three versions for you. That's the whole
+> idea — one rule in, three real security languages out.
+>
+> This page already shows the three steps you're about to watch — write,
+> translate, test. Let's click in."
 
-*[Action: click into the editor, change `>= 5` to `>= 2`]*
+*[Action: click "Open the playground →"]*
 
-> "I just lowered the failed-attempt threshold from 5 to 2. Watch the test
-> panel — [point] — it just re-evaluated against all seven events instantly,
-> with no save, no compile step, no page reload. That's the interpreter and
-> both other output tabs updating live off the same parse."
+## [1:00–1:30] First look at the real interface
 
-## 3:45–4:15 — It's a real compiler, not just a browser toy
+*[Screen: the tool, header visible]*
+
+> "Okay, now we're inside the actual tool. Up top: the project name, a
+> dropdown to load different example alarms, and a help button if anyone
+> watching this wants a guide without me talking. There's also a banner
+> right under it reminding first-time visitors this is a real, live tool —
+> not screenshots. Let's ignore that and go straight to panel one."
+
+## [1:30–2:15] Panel 1 — writing the rule
+
+*[Screen: point at the left panel, labeled "1. Write the rule"]*
+
+> "This left box is where you write one alarm — we call it a **rule**.
+> This example is called Credential Stuffing — that's a real attack where
+> someone steals a big list of passwords and tries them all against
+> different accounts, hoping one works.
+>
+> Reading it out loud, in plain English: 'when someone logs in, AND they
+> got the password wrong 5 or more times, AND they're suddenly logging in
+> from a different country than usual — flag it as high severity.'
+>
+> That's it. No special training needed to read that. And right below it
+> — [point] — this green checkmark line tells me instantly that what I
+> wrote is valid, with no typos."
+
+## [2:15–3:00] Panel 2 — the three translations
+
+*[Screen: point at the right panel, labeled "2. See it translated"]*
+
+> "This right box takes that ONE rule I just read, and shows it rewritten
+> into three real security languages. Watch me click through them."
+
+*[Action: click "Splunk SPL" tab]*
+
+> "This is **Splunk's** language — remember, Splunk is one of the biggest
+> tools security teams use to search their logs. This is exactly what
+> you'd paste into Splunk to make this alarm real."
+
+*[Action: click "Sigma YAML" tab]*
+
+> "This is **Sigma** — the shared, open format I mentioned earlier, so
+> this same alarm could be published for other security teams to use in
+> whatever tool *they* have."
+
+*[Action: click "Elastic EQL" tab]*
+
+> "And this is **Elastic's** language — Elastic is another major company
+> that does the same job as Splunk, with its own tool and its own way of
+> writing things.
+>
+> I didn't write any of these three by hand — my program read the one
+> plain rule and generated all three. And down here [point at the tip
+> line] — where a translation genuinely can't be done perfectly, like
+> Sigma not being able to compare two different pieces of information to
+> each other, it says so honestly instead of pretending it worked."
+
+## [3:00–4:00] Panel 3 — the live proof (the big moment)
+
+*[Screen: scroll down to "3. Prove it actually works"]*
+
+> "This bottom box is my favorite part. It's running this exact rule,
+> right now, against 7 made-up example security events — logins, file
+> transfers, that kind of thing — and showing which ones it would catch.
+> Right now it's correctly flagging the credential-stuffing pattern and
+> correctly ignoring the six innocent ones.
+>
+> Now watch — I'm going to edit the rule live."
+
+*[Action: click into the rule editor, change `>= 5` to `>= 2`]*
+
+> "I just changed the rule to flag anyone with 2 or more wrong passwords
+> instead of 5. Watch the list below — [point] — it instantly re-checked
+> all 7 events again, with no save button, no reload, nothing. That proves
+> this is a real, working program thinking through my rule as I type it —
+> not a video or a mockup."
+
+## [4:00–4:30] It's not just a website
 
 *[Screen: switch to terminal]*
 
-> "This isn't only a web demo — there's a command-line compiler too, so it
-> could run in CI or a build pipeline."
+> "One more thing — this isn't only a webpage. There's also a
+> command-line version, so a security team could run this as part of
+> their normal automated tools."
 
 *[Action: run `node cli.js compile examples/impossible-travel.shieldql --target=sigma`]*
 
-> "Same engine, same output, from the terminal. And the whole thing is
-> covered by an end-to-end test that parses, compiles, and interprets every
-> example rule and checks the results — [optionally: run `node test-smoke.js`
-> and show 'ALL OK']."
+> "Same program, same correct output, straight from the terminal."
 
-## 4:15–4:45 — Why this matters
+## [4:30–5:00] Why it matters, and close
 
-> "The real-world model here is the same one Terraform uses for cloud
-> infrastructure, or Sigma itself uses for sharing rules: one source of
-> truth, many compiled targets. Adding support for a new tool — YARA,
-> Suricata, another SIEM — is just one more function against the existing
-> parsed rule. No changes to the language, no changes to rules teams
-> already wrote."
-
-## 4:45–5:00 — Close
-
-> "ShieldQL: write your detection logic once, in a language built for the
-> job, and let it speak Splunk, Sigma, and Elastic fluently. Thanks for
-> watching."
-
-*[Screen: hold on the playground or a title card with the repo link]*
+> "Real security teams almost never use just one tool — and today they
+> maintain the same alarm logic separately for each one, which drifts out
+> of sync over time. ShieldQL means you write your security knowledge
+> once, and trust it everywhere it needs to go. That's ShieldQL — thanks
+> for watching."
 
 ---
 
-## Quick checklist while recording
+## Cheat-sheet: what to actually click, in order
 
-- [ ] Show the dropdown / example switching (proves it's not one hardcoded demo)
-- [ ] Show at least one `# NOTE:` comment in the compiled output (proves technical honesty)
-- [ ] Do the live-edit moment (proves it's genuinely interactive, not screenshots)
-- [ ] Show the CLI (proves it's a real compiler, not just a web page)
-- [ ] Say the problem statement and the real-world-impact line in your own words — these map directly to two judging criteria worth 40 of the 100 points combined
+1. Land on the welcome screen → talk over it → click **"Open the
+   playground →"**
+2. Point at the header (dropdown + help button) — don't click yet
+3. Point at panel 1 (the rule) — read it out loud
+4. Click **Splunk SPL** tab → **Sigma YAML** tab → **Elastic EQL** tab, in
+   that order
+5. Scroll down to panel 3 → point at the match count and rows
+6. Click into the editor → change `>= 5` to `>= 2` → point at panel 3
+   updating live
+7. Switch to terminal → run the `node cli.js compile ...` command shown
+   above
+8. Close on the "why it matters" line — no need to go back on screen
+
+## If you get a question you don't expect
+
+You don't have to know everything — it's fine to say "that's a great
+question, let me follow up" — but here are the ones most likely to come
+up:
+
+- **"Isn't this just like existing Sigma-to-X converters (e.g.
+  Uncoder.io)?"** — "That's fair, rule translation isn't a brand-new idea.
+  What's different here is ShieldQL is a purpose-built *authoring*
+  language with its own live tester built in — you can prove a rule
+  actually catches the right events before you ever export it anywhere,
+  which a pure converter can't do since it starts from an already-written
+  Sigma rule."
+- **"What happens if the rule uses `or` or `not`?"** — "The Elastic
+  version handles it natively. The Sigma version currently flags that
+  case with a note since Sigma's flat format can't express it cleanly —
+  that's a documented, honest limitation, not a bug."
+- **"Can this be extended to more tools?"** — "Yes — since everything
+  reads from one shared parsed structure, adding a new target like YARA or
+  Suricata is one new function, not a language change."
