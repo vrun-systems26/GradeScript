@@ -94,6 +94,16 @@ a translation is lossy:
   logic, so it's the most complete of the three backends. Time windows
   (`within`) are emitted as a comment, since EQL applies time bounds via the
   Kibana time range picker rather than inline syntax.
+- **`within` is metadata, not a temporal engine.** A rule's `within 10m` is
+  passed through to each target's own time-window syntax, but the local
+  interpreter (the thing powering the playground's live test panel)
+  evaluates a rule against **one event at a time** — it does not currently
+  simulate a rolling window across a sequence of events. If asked directly:
+  no, the interpreter doesn't yet check whether 5 failed logins actually
+  happened within 10 real minutes of each other; it checks whether a single
+  sample event's fields satisfy the rule. Real temporal correlation (state
+  held across multiple events) is a natural next step, not something this
+  version claims to do.
 
 This is deliberate: a compiler that silently produces a subtly wrong
 security rule is worse than one that tells you where you need to double

@@ -16,31 +16,11 @@ team stops maintaining the same logic three times."
 Devpost asks for: project repo + a demo video (≤5 min) showing the language
 in action, its key features, and how users interact with it.
 
-Suggested structure:
-
-1. **(30s) The problem.** Security teams write detection rules once per
-   tool (Splunk, Sigma, Elastic...) and they drift out of sync. Say it in
-   your own words.
-2. **(90s) Open the playground** (`index.html`). Pick "Credential Stuffing"
-   from the dropdown. Walk through the rule out loud: what `when`, `within`,
-   `severity`, `tags` mean. Point out the live "Parsed rule ✓" status bar.
-3. **(60s) Switch the three output tabs** — Splunk SPL, Sigma YAML, Elastic
-   EQL — and point out they're generated from the *same* rule. Mention the
-   `# NOTE:` comments where a translation is lossy (e.g. Sigma can't compare
-   two fields) — this shows judges you understand the domain, not just that
-   you wrote a template.
-4. **(60s) Live-edit the rule** — change `>= 5` to `>= 2`, watch the "live
-   test run" panel re-evaluate against the sample log events in real time,
-   and show a previously-"no match" row flip to "MATCH". This is the
-   strongest "wow" moment because it's genuinely interactive, not a
-   pre-rendered screenshot.
-5. **(30s) Show the CLI** (`node cli.js compile examples/impossible-travel.shieldql`)
-   so judges see this isn't only a browser toy — there's a real compiler
-   underneath usable from a terminal/CI pipeline.
-6. **(30s) Close** on real-world impact: this is the same "one config, many
-   targets" idea as Terraform or Sigma itself, and adding a new target
-   (YARA, Suricata, a new SIEM) is one more function against the existing
-   AST — no language changes.
+**See [`DEMO_SCRIPT.md`](DEMO_SCRIPT.md) for the full narration, timed to
+5 minutes, including a landing-page walkthrough, every term defined inline,
+a click-by-click cheat-sheet, and a Q&A section for questions judges are
+likely to ask** (including the honest answer on what `within` does and
+doesn't do yet — see "Known limitations" below).
 
 ## Mapping what's built to the judging rubric
 
@@ -52,6 +32,24 @@ Suggested structure:
 | Documentation & Presentation (10) | `README.md`, `LANGUAGE.md`, zero-install setup (open one HTML file), explicit "known limitations" section |
 | Real-World Impact (15) | Solves a real, named problem; explicit extensibility story (new backend = new function) |
 | User Experience (5) | Live-updating playground with syntax highlighting, tabbed output, and a live test runner against sample data — no install, no build step |
+
+## Known limitations — be ready to say these out loud, unprompted if needed
+
+Judges respect honesty about scope more than they penalize it. Two things
+worth knowing cold:
+
+1. **Sigma can't express field-to-field comparisons, `or`, or `not`
+   natively.** The generator flags this with a `# NOTE:` comment instead of
+   producing a subtly wrong rule. This is a real constraint of the Sigma
+   format, not a bug in ShieldQL.
+2. **`within` is metadata passed to each target, not a live temporal
+   engine.** The playground's test panel evaluates a rule against one
+   event at a time — it doesn't simulate a rolling multi-event time window.
+   The generated Splunk/Sigma/Elastic code correctly expresses the time
+   window in each tool's own syntax; the local interpreter just doesn't
+   simulate that window itself yet. See `README.md`'s "Known limitations"
+   section for the full wording, and `DEMO_SCRIPT.md`'s Q&A section for how
+   to answer this if asked directly.
 
 ## Things to actually decide/do before submitting
 

@@ -55,6 +55,23 @@ rule PrivilegeEscalation {
   description: "Non-admin user's PowerShell process requested admin privileges"
 }
 `,
+    "+ Blank template": `// Write your own rule here. Every field except "when" is optional.
+rule MyDetection {
+  when event.type == "login"
+    and event.failed_attempts >= 5
+  severity: medium
+  tags: "example"
+  description: "Describe what this rule catches, in plain words"
+}
+`,
+  };
+
+  const EXAMPLE_DESCRIPTIONS = {
+    "Credential Stuffing": "Detects logins after repeated failed passwords from an unexpected country — a classic stolen-password attack.",
+    "Impossible Travel": "Detects two logins for the same account that imply travel faster than a commercial flight.",
+    "Data Exfiltration": "Detects unusually large file transfers leaving the network outside business hours.",
+    "Privilege Escalation": "Detects a non-admin user's PowerShell process requesting admin-level access.",
+    "+ Blank template": "A minimal starting point — replace the conditions with your own idea and watch it compile live.",
   };
 
   const SAMPLE_LOGS = [
@@ -75,6 +92,7 @@ rule PrivilegeEscalation {
   const output = document.getElementById("output");
   const testResults = document.getElementById("test-results");
   const exampleSelect = document.getElementById("example-select");
+  const exampleDescription = document.getElementById("example-description");
   const tabButtons = document.querySelectorAll(".tab-btn");
 
   let compiledResults = { splunk: "", sigma: "", eql: "" };
@@ -137,7 +155,8 @@ rule PrivilegeEscalation {
       return;
     }
 
-    statusBar.textContent = `✓ Parsed rule "${rule.name}" — severity: ${rule.severity}${rule.within ? `, within: ${rule.within.raw}` : ""}${rule.tags.length ? `, tags: ${rule.tags.join(", ")}` : ""}`;
+    const withinNote = rule.within ? ` — note: the live tester below checks one event at a time, it doesn't yet simulate the ${rule.within.raw} window itself` : "";
+    statusBar.textContent = `✓ Parsed rule "${rule.name}" — severity: ${rule.severity}${rule.within ? `, within: ${rule.within.raw}` : ""}${rule.tags.length ? `, tags: ${rule.tags.join(", ")}` : ""}${withinNote}`;
     statusBar.className = "ok";
 
     try {
@@ -187,8 +206,14 @@ rule PrivilegeEscalation {
     exampleSelect.appendChild(opt);
   });
 
+  function updateExampleDescription() {
+    const desc = EXAMPLE_DESCRIPTIONS[exampleSelect.value] || "";
+    exampleDescription.innerHTML = `<strong>${escapeHtml(exampleSelect.value)}</strong> — ${escapeHtml(desc)}`;
+  }
+
   exampleSelect.addEventListener("change", () => {
     editor.value = EXAMPLES[exampleSelect.value];
+    updateExampleDescription();
     render();
   });
 
@@ -235,5 +260,6 @@ rule PrivilegeEscalation {
   // Initial load
   exampleSelect.value = "Credential Stuffing";
   editor.value = EXAMPLES["Credential Stuffing"];
+  updateExampleDescription();
   render();
 })();

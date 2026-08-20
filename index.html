@@ -18,31 +18,50 @@
         once</strong>, and it automatically translates that one rule into the three different
         formats real security tools understand.
       </p>
+      <div class="landing-compare">
+        <div class="landing-compare-col">
+          <span class="landing-compare-label bad">Today, without ShieldQL</span>
+          <div class="landing-compare-box">
+            <span>1 detection idea</span>
+            <span class="landing-compare-arrow">↓ written by hand, 3 times</span>
+            <span class="landing-compare-list">Splunk rule · Sigma rule · Elastic rule<br/><em>— can silently drift out of sync —</em></span>
+          </div>
+        </div>
+        <div class="landing-compare-col">
+          <span class="landing-compare-label good">With ShieldQL</span>
+          <div class="landing-compare-box good">
+            <span>1 detection idea</span>
+            <span class="landing-compare-arrow">↓ written once</span>
+            <span class="landing-compare-list">→ Splunk<br/>→ Sigma<br/>→ Elastic<br/><em>— generated, always in sync —</em></span>
+          </div>
+        </div>
+      </div>
+
       <div class="landing-steps">
         <div class="landing-step">
-          <span class="landing-step-icon">✏️</span>
+          <span class="landing-step-icon">①</span>
           <div>
-            <strong>Step 1 — Write</strong>
-            <p>Type one simple rule, like "flag it if someone fails their password 5 times."</p>
+            <strong>Choose an example</strong>
+            <p>Use the dropdown, top right, once you're in.</p>
           </div>
         </div>
         <div class="landing-step">
-          <span class="landing-step-icon">🔄</span>
+          <span class="landing-step-icon">②</span>
           <div>
-            <strong>Step 2 — Translate</strong>
-            <p>Instantly see that same rule rewritten in 3 real security-tool languages.</p>
+            <strong>Change one number</strong>
+            <p>Click into the rule and edit any value.</p>
           </div>
         </div>
         <div class="landing-step">
-          <span class="landing-step-icon">🧪</span>
+          <span class="landing-step-icon">③</span>
           <div>
-            <strong>Step 3 — Test</strong>
-            <p>Watch it check itself against sample events live, right as you type.</p>
+            <strong>Watch results change</strong>
+            <p>The bottom panel re-checks itself instantly.</p>
           </div>
         </div>
       </div>
       <button id="landing-enter" type="button">Open the playground →</button>
-      <p class="landing-footnote">Everything on the next screen is explained as you go — nothing to memorize first.</p>
+      <p class="landing-footnote">That's genuinely all you need to know before clicking in — everything else is labeled as you go.</p>
     </div>
   </div>
 
@@ -52,13 +71,15 @@
       <span class="logo">ShieldQL</span>
       <span class="logo-badge">DSL compiler</span>
     </div>
-    <span class="tagline">Write one security detection rule. Get Splunk SPL, Sigma YAML, and Elastic EQL — automatically, correctly.</span>
+    <span class="tagline">Write one detection rule. Generate Splunk, Sigma, and Elastic targets — with translation limits called out automatically.</span>
     <div class="rule-select">
       <label for="example-select">Load example:</label>
       <select id="example-select"></select>
     </div>
     <button id="help-btn" type="button">❓ How to use this</button>
   </header>
+
+  <div id="example-description"></div>
 
   <div id="help-overlay">
     <div id="help-panel">
@@ -67,6 +88,13 @@
         <button id="help-close" type="button" aria-label="Close">✕</button>
       </div>
       <div class="help-panel-body">
+        <section>
+          <h3>The problem, in one picture</h3>
+          <p>Today: one detection idea gets hand-written 3 times (Splunk, Sigma,
+          Elastic) and the copies can drift apart. With ShieldQL: you write it
+          <strong>once</strong>, and the 3 versions are generated from that one
+          source, so they can't disagree with each other.</p>
+        </section>
         <section>
           <h3>Navigating it (30 seconds)</h3>
           <ol>
@@ -86,6 +114,7 @@
             <dt>DSL</dt><dd>"Domain-Specific Language" — a small language built for one job only (here: writing security rules), instead of a general-purpose language like Python.</dd>
             <dt>Rule</dt><dd>One "if this happens, flag it" statement — the thing you write in panel 1.</dd>
             <dt>Compile / transpile</dt><dd>Automatically translating one piece of code into another language without a human rewriting it by hand.</dd>
+            <dt>within (honest note)</dt><dd>Sets a time window on the rule (e.g. <code>within 10m</code>) and gets passed to each target's own time-window syntax. The live tester below evaluates one event at a time — it doesn't yet simulate a real multi-event time window itself.</dd>
           </dl>
           <p class="help-more">Full write-up: <a href="GLOSSARY.md">GLOSSARY.md</a> · Full syntax: <a href="LANGUAGE.md">LANGUAGE.md</a></p>
         </section>

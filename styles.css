@@ -95,6 +95,50 @@ body {
 }
 .landing-explain strong { color: var(--text); }
 
+.landing-compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 28px;
+  text-align: left;
+}
+
+.landing-compare-col { display: flex; flex-direction: column; gap: 8px; }
+
+.landing-compare-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+.landing-compare-label.bad { color: var(--danger); }
+.landing-compare-label.good { color: var(--accent); }
+
+.landing-compare-box {
+  background: var(--panel);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--text-dim);
+  text-align: center;
+  min-height: 118px;
+  justify-content: center;
+}
+.landing-compare-box.good {
+  border-color: var(--accent-dim);
+  background: var(--accent-soft);
+  color: var(--text);
+}
+.landing-compare-arrow { font-size: 11px; color: var(--text-faint); }
+.landing-compare-list { font-size: 12px; line-height: 1.6; }
+.landing-compare-list em { color: var(--text-faint); font-style: italic; }
+
 .landing-steps {
   display: grid;
   grid-template-columns: 1fr;
@@ -236,6 +280,18 @@ select:focus { outline: none; border-color: var(--accent); }
 }
 #help-btn:hover { border-color: var(--accent); color: var(--accent); }
 
+/* ---------- Example description strip ---------- */
+
+#example-description {
+  padding: 8px 24px;
+  font-size: 12.5px;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--border-soft);
+  background: var(--panel-alt);
+  flex-shrink: 0;
+}
+#example-description strong { color: var(--accent); }
+
 /* ---------- Tip banner ---------- */
 
 #tip-banner {
@@ -348,6 +404,14 @@ select:focus { outline: none; border-color: var(--accent); }
 .help-panel-body dl { margin: 0; }
 .help-panel-body dt { color: var(--text); font-weight: 700; font-family: var(--font-mono); font-size: 12.5px; margin-top: 10px; }
 .help-panel-body dd { margin: 2px 0 0; color: var(--text-dim); }
+.help-panel-body code {
+  font-family: var(--font-mono);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 0.95em;
+}
 .help-more { margin-top: 14px; font-size: 12px; color: var(--text-faint); }
 
 /* ---------- Layout ---------- */

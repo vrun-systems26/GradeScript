@@ -186,3 +186,12 @@ up:
 - **"Can this be extended to more tools?"** — "Yes — since everything
   reads from one shared parsed structure, adding a new target like YARA or
   Suricata is one new function, not a language change."
+- **"Does `within 10m` actually check events over a real 10-minute
+  window?"** — Answer honestly here, this is the most likely sharp
+  question: "Not in the current interpreter. `within` gets passed through
+  to each target's own time-window syntax — like Splunk's `earliest=`,
+  Sigma's `timeframe:`, or Elastic's time range picker — so the *generated
+  code* is correct. But the local live-tester evaluates one event at a
+  time, not a rolling window across a sequence of events. Real temporal
+  correlation is a natural next step, not something I'm claiming this
+  version already does."
