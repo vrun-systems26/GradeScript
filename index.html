@@ -8,17 +8,64 @@
 </head>
 <body>
   <header>
-    <span class="logo">ShieldQL</span>
-    <span class="tagline">Write one detection rule. Get Splunk SPL, Sigma, and Elastic EQL — automatically, correctly.</span>
+    <div class="brand">
+      <span class="logo">ShieldQL</span>
+      <span class="logo-badge">DSL compiler</span>
+    </div>
+    <span class="tagline">Write one security detection rule. Get Splunk SPL, Sigma YAML, and Elastic EQL — automatically, correctly.</span>
     <div class="rule-select">
       <label for="example-select">Load example:</label>
       <select id="example-select"></select>
     </div>
+    <button id="help-btn" type="button">❓ How to use this</button>
   </header>
+
+  <div id="help-overlay">
+    <div id="help-panel">
+      <div class="help-panel-head">
+        <span>How to use this page</span>
+        <button id="help-close" type="button" aria-label="Close">✕</button>
+      </div>
+      <div class="help-panel-body">
+        <section>
+          <h3>Navigating it (30 seconds)</h3>
+          <ol>
+            <li>Pick a rule from the <strong>"Load example"</strong> dropdown, top right.</li>
+            <li>Panel <strong>1 (left)</strong> is the rule itself, in plain syntax. Edit it — everything else updates instantly.</li>
+            <li>Panel <strong>2 (right)</strong> shows that same rule translated into 3 real tools. Click the pill buttons to switch between them.</li>
+            <li>Panel <strong>3 (bottom)</strong> runs the rule against 7 pretend security events live, so you can see exactly which ones it catches.</li>
+          </ol>
+        </section>
+        <section>
+          <h3>Quick glossary</h3>
+          <dl>
+            <dt>Splunk</dt><dd>A tool companies use to search huge piles of computer activity logs and set up alarms on them.</dd>
+            <dt>Sigma</dt><dd>Not a tool — a shared, open way of writing down an alarm idea so people using different tools can trade rules with each other.</dd>
+            <dt>Elastic / EQL</dt><dd>Another company's log-search tool, similar job to Splunk, own language called EQL.</dd>
+            <dt>SOC</dt><dd>"Security Operations Center" — the team that watches for attacks all day.</dd>
+            <dt>DSL</dt><dd>"Domain-Specific Language" — a small language built for one job only (here: writing security rules), instead of a general-purpose language like Python.</dd>
+            <dt>Rule</dt><dd>One "if this happens, flag it" statement — the thing you write in panel 1.</dd>
+            <dt>Compile / transpile</dt><dd>Automatically translating one piece of code into another language without a human rewriting it by hand.</dd>
+          </dl>
+          <p class="help-more">Full write-up: <a href="GLOSSARY.md">GLOSSARY.md</a> · Full syntax: <a href="LANGUAGE.md">LANGUAGE.md</a></p>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <div id="tip-banner">
+    <span>👋 <strong>First time here?</strong> This page is a live tool, not a screenshot — try changing a number in the rule on the left and watch panels 2 and 3 update instantly. Click <strong>❓ How to use this</strong> (top right) for a full guide.</span>
+    <button id="tip-close" type="button" aria-label="Dismiss">✕</button>
+  </div>
 
   <main>
     <div class="pane">
-      <div class="pane-header">rule.shieldql</div>
+      <div class="pane-header">
+        <div class="pane-title-group">
+          <span class="pane-title"><span class="pane-icon">✏️</span>1. Write the rule</span>
+          <span class="pane-subtitle">Plain, readable syntax — this is the only place you ever write it</span>
+        </div>
+      </div>
       <div id="editor-wrap">
         <pre id="highlight" aria-hidden="true"></pre>
         <textarea id="editor" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
@@ -28,7 +75,10 @@
 
     <div class="pane">
       <div class="pane-header">
-        Compiled output
+        <div class="pane-title-group">
+          <span class="pane-title"><span class="pane-icon">🔄</span>2. See it translated</span>
+          <span class="pane-subtitle">Same rule, 3 real security tool languages</span>
+        </div>
         <div class="tabs">
           <button class="tab-btn active" data-target="splunk">Splunk SPL</button>
           <button class="tab-btn" data-target="sigma">Sigma YAML</button>
@@ -36,17 +86,24 @@
         </div>
       </div>
       <div id="output-wrap"><pre id="output"></pre></div>
+      <div class="pane-tip">💡 All three tabs come from the exact same rule on the left — none of them is written separately, so they can't disagree with each other.</div>
     </div>
 
     <div class="pane bottom-panes">
-      <div class="pane-header">Live test run — interpreter evaluated against sample log events</div>
+      <div class="pane-header">
+        <div class="pane-title-group">
+          <span class="pane-title"><span class="pane-icon">🧪</span>3. Prove it actually works</span>
+          <span class="pane-subtitle">The rule above, run live against 7 sample security events — edit it and watch this update instantly</span>
+        </div>
+      </div>
       <div id="test-results"></div>
+      <div class="pane-tip">💡 Try it: in the rule on the left, change the number after <code>&gt;=</code> and watch the MATCH / no match badges below update live, with no save or reload.</div>
     </div>
   </main>
 
   <footer>
     Zero install: this whole playground is one static HTML file + engine.js, no build step, no network calls.
-    See <a href="LANGUAGE.md" style="color:var(--accent)">LANGUAGE.md</a> for the full syntax reference.
+    See <a href="LANGUAGE.md">LANGUAGE.md</a> for the full syntax reference, or <a href="GLOSSARY.md">GLOSSARY.md</a> if a term here is unfamiliar.
   </footer>
 
   <script src="engine.js"></script>

@@ -164,7 +164,7 @@ rule PrivilegeEscalation {
       </div>`;
     });
     const matchCount = SAMPLE_LOGS.filter((entry) => ShieldQL.runRule(rule, { event: entry.event, user: entry.user }).matched).length;
-    testResults.innerHTML = `<div class="test-meta" style="margin-bottom:6px;">${matchCount} / ${SAMPLE_LOGS.length} sample events matched</div>` + rows.join("");
+    testResults.innerHTML = `<div class="test-summary">${matchCount} / ${SAMPLE_LOGS.length} sample events matched this rule</div>` + rows.join("");
   }
 
   // ---- Wiring ----
@@ -191,6 +191,34 @@ rule PrivilegeEscalation {
     editor.value = EXAMPLES[exampleSelect.value];
     render();
   });
+
+  // ---- Help panel + tip banner ----
+
+  const helpBtn = document.getElementById("help-btn");
+  const helpOverlay = document.getElementById("help-overlay");
+  const helpClose = document.getElementById("help-close");
+  const tipBanner = document.getElementById("tip-banner");
+  const tipClose = document.getElementById("tip-close");
+
+  function openHelp() { helpOverlay.classList.add("open"); }
+  function closeHelp() { helpOverlay.classList.remove("open"); }
+
+  helpBtn.addEventListener("click", openHelp);
+  helpClose.addEventListener("click", closeHelp);
+  helpOverlay.addEventListener("click", (e) => {
+    if (e.target === helpOverlay) closeHelp();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeHelp();
+  });
+
+  tipClose.addEventListener("click", () => {
+    tipBanner.classList.add("hidden");
+    try { localStorage.setItem("shieldql-tip-dismissed", "1"); } catch (e) {}
+  });
+  try {
+    if (localStorage.getItem("shieldql-tip-dismissed") === "1") tipBanner.classList.add("hidden");
+  } catch (e) {}
 
   // Initial load
   exampleSelect.value = "Credential Stuffing";

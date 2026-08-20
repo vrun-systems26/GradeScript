@@ -120,6 +120,8 @@ examples/          four real detection rules
 sample-logs/       sample JSON events used by the interpreter's test runner
 test-smoke.js      end-to-end test: parses + compiles + runs every example
 LANGUAGE.md        full syntax reference
-DEMO_SCRIPT.md      5-minute demo video structure
-SUBMISSION_NOTES.md judging-rubric mapping + submission checklist
+DEMO_SCRIPT.md       5-minute demo video script
+SUBMISSION_NOTES.md  judging-rubric mapping + submission checklist
+GLOSSARY.md          every unfamiliar term explained plainly
+TESTING_AND_TOUR.md  how to test it yourself + full interface tour for filming
 ```
