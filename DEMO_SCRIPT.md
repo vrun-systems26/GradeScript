@@ -11,8 +11,14 @@ Sigma, or a "rule" means.
 
 Before recording: open a fresh browser tab at `index.html` (or `node
 serve.js` → `http://localhost:5173`) so the very first thing on screen is
-the new landing page, not the tool itself. Have a terminal ready in the
+the landing page, not the tool itself. Have a terminal ready in the
 background for the CLI part near the end.
+
+**Layout note:** the tool has two top-level tabs at the top of the page:
+**"✏️ Write & Test"** (the default view — the rule editor and the live test
+results, side by side) and **"🔄 See it Translated"** (a second tab showing
+the same rule compiled into Splunk/Sigma/Elastic). You start on the first
+tab and switch to the second partway through.
 
 ---
 
@@ -22,7 +28,7 @@ background for the CLI part near the end.
 
 ## [0:15–1:00] The landing page (screen: the welcome screen, untouched)
 
-*[Screen: the landing page — title, tagline, 3 steps, green button]*
+*[Screen: the landing page — title, tagline, the "today vs ShieldQL" comparison, green button]*
 
 > "Before I touch any code, let me explain what this actually does, because
 > the name won't mean anything yet.
@@ -40,30 +46,31 @@ background for the CLI part near the end.
 > Here's the problem: Splunk, Sigma, and Elastic each want that alarm
 > written in a totally different style. So today, a security person writes
 > the same alarm three separate times by hand — which is slow, and easy to
-> get wrong.
+> get wrong. That's this picture right here [point at the comparison box]:
+> one idea, hand-written three times, that can quietly drift out of sync.
 >
 > ShieldQL fixes that. You write the alarm once, in plain words, and it
-> automatically produces all three versions for you. That's the whole
-> idea — one rule in, three real security languages out.
->
-> This page already shows the three steps you're about to watch — write,
-> translate, test. Let's click in."
+> automatically produces all three versions for you. Let's click in."
 
 *[Action: click "Open the playground →"]*
 
-## [1:00–1:30] First look at the real interface
+## [1:00–1:20] First look at the real interface
 
-*[Screen: the tool, header visible]*
+*[Screen: the tool, "✏️ Write & Test" tab active by default]*
 
 > "Okay, now we're inside the actual tool. Up top: the project name, a
 > dropdown to load different example alarms, and a help button if anyone
-> watching this wants a guide without me talking. There's also a banner
-> right under it reminding first-time visitors this is a real, live tool —
-> not screenshots. Let's ignore that and go straight to panel one."
+> watching this wants a guide without me talking. Right under that,
+> there's always a one-line description telling you exactly which example
+> is loaded and what it catches.
+>
+> There are two tabs at the top of the page. We're on 'Write & Test' right
+> now — that's the rule editor and a live tester, side by side. There's a
+> second tab, 'See it Translated,' that I'll switch to later."
 
-## [1:30–2:15] Panel 1 — writing the rule
+## [1:20–2:00] The rule editor
 
-*[Screen: point at the left panel, labeled "1. Write the rule"]*
+*[Screen: point at the left box, "Write the rule"]*
 
 > "This left box is where you write one alarm — we call it a **rule**.
 > This example is called Credential Stuffing — that's a real attack where
@@ -74,16 +81,39 @@ background for the CLI part near the end.
 > got the password wrong 5 or more times, AND they're suddenly logging in
 > from a different country than usual — flag it as high severity.'
 >
-> That's it. No special training needed to read that. And right below it
-> — [point] — this green checkmark line tells me instantly that what I
-> wrote is valid, with no typos."
+> That's it. No special training needed to read that. Notice there are
+> even comments right next to each line, in gray, explaining what it does
+> and suggesting numbers to try changing. And right below the box — [point]
+> — this green checkmark line tells me instantly that what I wrote is
+> valid, with no typos."
 
-## [2:15–3:00] Panel 2 — the three translations
+## [2:00–3:00] The live test panel (the big moment)
 
-*[Screen: point at the right panel, labeled "2. See it translated"]*
+*[Screen: point at the right box, "Prove it actually works"]*
 
-> "This right box takes that ONE rule I just read, and shows it rewritten
-> into three real security languages. Watch me click through them."
+> "This right box is my favorite part. It's running this exact rule, right
+> now, against 7 made-up example security events — logins, file transfers,
+> that kind of thing — and showing which ones it would catch. Right now
+> it's correctly flagging the credential-stuffing pattern and correctly
+> ignoring the six innocent ones.
+>
+> Now watch — I'm going to edit the rule live."
+
+*[Action: click into the rule editor, change `>= 5` to `>= 2`]*
+
+> "I just changed the rule to flag anyone with 2 or more wrong passwords
+> instead of 5. Watch the list on the right — [point] — it instantly
+> re-checked all 7 events again, with no save button, no reload, nothing.
+> That proves this is a real, working program thinking through my rule as
+> I type it — not a video or a mockup."
+
+## [3:00–3:45] Switching tabs — the three translations
+
+*[Action: click the "🔄 See it Translated" tab at the top of the page]*
+
+> "Now let's switch tabs. This is the same rule I was just editing,
+> rewritten into three real security languages. Watch me click through
+> them."
 
 *[Action: click "Splunk SPL" tab]*
 
@@ -109,27 +139,7 @@ background for the CLI part near the end.
 > Sigma not being able to compare two different pieces of information to
 > each other, it says so honestly instead of pretending it worked."
 
-## [3:00–4:00] Panel 3 — the live proof (the big moment)
-
-*[Screen: scroll down to "3. Prove it actually works"]*
-
-> "This bottom box is my favorite part. It's running this exact rule,
-> right now, against 7 made-up example security events — logins, file
-> transfers, that kind of thing — and showing which ones it would catch.
-> Right now it's correctly flagging the credential-stuffing pattern and
-> correctly ignoring the six innocent ones.
->
-> Now watch — I'm going to edit the rule live."
-
-*[Action: click into the rule editor, change `>= 5` to `>= 2`]*
-
-> "I just changed the rule to flag anyone with 2 or more wrong passwords
-> instead of 5. Watch the list below — [point] — it instantly re-checked
-> all 7 events again, with no save button, no reload, nothing. That proves
-> this is a real, working program thinking through my rule as I type it —
-> not a video or a mockup."
-
-## [4:00–4:30] It's not just a website
+## [3:45–4:15] It's not just a website
 
 *[Screen: switch to terminal]*
 
@@ -141,7 +151,7 @@ background for the CLI part near the end.
 
 > "Same program, same correct output, straight from the terminal."
 
-## [4:30–5:00] Why it matters, and close
+## [4:15–5:00] Why it matters, and close
 
 > "Real security teams almost never use just one tool — and today they
 > maintain the same alarm logic separately for each one, which drifts out
@@ -155,13 +165,14 @@ background for the CLI part near the end.
 
 1. Land on the welcome screen → talk over it → click **"Open the
    playground →"**
-2. Point at the header (dropdown + help button) — don't click yet
-3. Point at panel 1 (the rule) — read it out loud
-4. Click **Splunk SPL** tab → **Sigma YAML** tab → **Elastic EQL** tab, in
-   that order
-5. Scroll down to panel 3 → point at the match count and rows
-6. Click into the editor → change `>= 5` to `>= 2` → point at panel 3
-   updating live
+2. Point at the header (dropdown + help button) and the example
+   description line — don't click yet
+3. Point at the left box (the rule) — read it out loud, mention the inline
+   comments
+4. Point at the right box (test results) → click into the editor → change
+   `>= 5` to `>= 2` → point at the results updating live
+5. Click the **"🔄 See it Translated"** tab, top of page
+6. Click **Splunk SPL** → **Sigma YAML** → **Elastic EQL**, in that order
 7. Switch to terminal → run the `node cli.js compile ...` command shown
    above
 8. Close on the "why it matters" line — no need to go back on screen

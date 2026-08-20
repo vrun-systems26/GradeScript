@@ -46,43 +46,44 @@ Layout, top to bottom, left to right:
 **Header (very top)**
 - Far left: the **ShieldQL** logo and a small "DSL compiler" badge.
 - Center: a one-line tagline describing the whole project.
-- Right side: the **"Load example"** dropdown — this swaps which of the 4
-  built-in rules is loaded into the editor.
+- Right side: the **"Load example"** dropdown — swaps which of the 5
+  built-in rules (4 real examples + 1 blank template) is loaded into the
+  editor.
 - Far right: a **"❓ How to use this"** button — opens a slide-in panel
   from the right with a step-by-step guide and a mini glossary. Good to
   point out in the video ("and if a judge opens this without me, there's a
   help button right here").
 
-**Tip banner (thin colored bar just under the header)**
-- A one-line hint for first-time visitors. Has a ✕ to dismiss it — once
-  dismissed it stays dismissed (remembered in the browser).
+**Example description strip (thin bar just under the header)**
+- Always shows the currently-loaded example's name and a one-sentence
+  plain-English description of what it catches. Updates the moment you
+  change the dropdown.
 
-**Panel 1 — top left, labeled "1. Write the rule"**
-- The rule editor itself. Syntax-highlighted (pink = keywords, green =
-  strings, yellow = numbers).
-- Directly under it: a **status bar** — green text with a ✓ when the rule
-  parses correctly (showing the rule's name, severity, time window, tags),
-  or red text with a ✗ and the specific error if something's broken.
+**Two top-level tabs, just under that**
+- **"✏️ Write & Test"** (the default) and **"🔄 See it Translated."** Only
+  one is visible at a time — this is the main navigation of the whole
+  page, and worth calling out explicitly on camera the first time.
 
-**Panel 2 — top right, labeled "2. See it translated"**
-- Three pill-shaped tab buttons: **Splunk SPL**, **Sigma YAML**, **Elastic
-  EQL**. Click any tab to see that translation of the current rule.
-- Below the tabs: the actual generated code/config for whichever tab is
-  selected.
-- At the very bottom of this panel: a small dimmed tip line reminding the
-  viewer all three come from the same source rule.
-
-**Panel 3 — full width along the bottom, labeled "3. Prove it actually
-works"**
-- A count at the top: "`N / 7 sample events matched this rule`."
-- Below that: 7 rows, one per sample security event, each with a colored
-  badge (**MATCH** in green, **no match** in gray, **ERROR** in red if
-  something went wrong) and a plain-English label describing that sample
-  event (e.g. "Credential stuffing pattern", "Normal login").
-- At the bottom: a tip suggesting the viewer edit a number in the rule
-  above and watch this list update live — this is the single best thing
+**Tab 1 — "Write & Test" — two boxes side by side**
+- **Left box, "Write the rule":** the rule editor. Syntax-highlighted
+  (pink = keywords, green = strings, yellow = numbers), with gray inline
+  comments next to each line explaining what it checks and suggesting
+  numbers to try. Directly under it: a **status bar** — green ✓ when the
+  rule parses correctly (name, severity, time window, tags), red ✗ with
+  the specific error if something's broken.
+- **Right box, "Prove it actually works":** a count at the top
+  ("`N / 7 sample events matched this rule`"), then 7 rows — one per
+  sample security event — each with a colored badge (**MATCH** green,
+  **no match** gray, **ERROR** red) and a plain-English label. Edit any
+  number on the left and this updates instantly — the single best thing
   to demonstrate on camera, since it proves the tool is really running,
-  not just displaying pre-made screenshots.
+  not displaying pre-made screenshots.
+
+**Tab 2 — "See it Translated" — one full-width box**
+- Three pill-shaped buttons: **Splunk SPL**, **Sigma YAML**, **Elastic
+  EQL**. Click any to see that translation of the current rule. A dimmed
+  tip line at the bottom reminds the viewer all three come from the same
+  source rule.
 
 **Footer (very bottom)**
 - One line noting it's zero-install, with links to `LANGUAGE.md` (full
@@ -90,14 +91,16 @@ works"**
 
 ### Suggested filming path
 
-1. Start on the default-loaded "Credential Stuffing" example — don't touch
-   the dropdown yet, let viewers see the initial state.
-2. Narrate panel 1 (the rule, in plain words).
-3. Click through the 3 tabs in panel 2.
-4. Scroll down, narrate panel 3, point at the match count.
-5. Edit a number in panel 1 live, and hold the camera on panel 3 so the
-   viewer visibly sees a row flip from "no match" to "MATCH" (or vice
-   versa) with zero delay.
-6. Optionally switch the dropdown to a second example (e.g. "Privilege
-   Escalation") to prove it isn't a one-off demo.
-7. Cut to the terminal for the CLI portion (see `DEMO_SCRIPT.md`).
+1. Start on the default-loaded "Credential Stuffing" example, on the
+   "Write & Test" tab — don't touch anything yet, let viewers see the
+   initial state.
+2. Narrate the left box (the rule, in plain words, mention the inline
+   comments).
+3. Edit a number in the left box live, and hold the camera on the right
+   box so the viewer visibly sees a row flip from "no match" to "MATCH"
+   (or vice versa) with zero delay.
+4. Click the **"🔄 See it Translated"** tab, then click through its 3
+   pill buttons.
+5. Optionally switch the dropdown back on "Write & Test" to a second
+   example (e.g. "Privilege Escalation") to prove it isn't a one-off demo.
+6. Cut to the terminal for the CLI portion (see `DEMO_SCRIPT.md`).

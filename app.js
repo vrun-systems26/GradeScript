@@ -5,62 +5,59 @@
   // ---- Embedded examples & sample logs (kept in sync with /examples and /sample-logs) ----
 
   const EXAMPLES = {
-    "Credential Stuffing": `// Flags a login that succeeds after several failed attempts from a country
-// that doesn't match the account's home country within a short window.
+    "Credential Stuffing": `// CREDENTIAL STUFFING — someone trying a list of stolen passwords against your login page
 rule CredentialStuffing {
-  when event.type == "login"
-    and event.failed_attempts >= 5
-    and event.country != user.home_country
-  within 10m
+  when event.type == "login"                       // only look at login attempts
+    and event.failed_attempts >= 5                  // 5+ wrong passwords in a row — try 2 (stricter) or 10 (looser)
+    and event.country != user.home_country          // ...AND it's from a different country than usual
+  within 10m                                        // all of this happening inside a 10-minute window
   severity: high
   tags: "credential-stuffing", "brute-force", "authentication"
   description: "Multiple failed logins followed by access from an unexpected country within 10 minutes"
 }
 `,
-    "Impossible Travel": `// Flags a session where the reported travel speed between two logins for
-// the same user is physically impossible.
+    "Impossible Travel": `// IMPOSSIBLE TRAVEL — same account logging in faster than a human could really travel
 rule ImpossibleTravel {
-  when event.type == "login"
-    and event.travel_speed_kmh >= 900
-    and event.country != event.previous_country
+  when event.type == "login"                        // only look at login attempts
+    and event.travel_speed_kmh >= 900                // 900 km/h ~ commercial airplane speed — try 2000 (stricter) or 500 (looser)
+    and event.country != event.previous_country       // ...AND the country changed since their last login
   within 1h
   severity: critical
   tags: "impossible-travel", "account-takeover"
   description: "Two logins for the same account imply travel faster than commercial air speed"
 }
 `,
-    "Data Exfiltration": `// Flags unusually large outbound transfers to a destination outside the
-// corporate network, especially outside business hours.
+    "Data Exfiltration": `// DATA EXFILTRATION — someone quietly copying a huge pile of company data outward
 rule DataExfiltration {
-  when event.type == "network_transfer"
-    and event.bytes_out >= 500000000
-    and event.destination_internal == false
-    and event.is_business_hours == false
+  when event.type == "network_transfer"              // only look at file/network transfers
+    and event.bytes_out >= 500000000                 // 500,000,000 bytes ~ 500 MB — try 2000000000 (2GB, stricter) or 100000000 (100MB, looser)
+    and event.destination_internal == false          // ...AND it's leaving the company network
+    and event.is_business_hours == false              // ...AND it's happening outside normal work hours
   within 30m
   severity: high
   tags: "exfiltration", "insider-threat", "network"
   description: "Large outbound transfer to an external destination outside business hours"
 }
 `,
-    "Privilege Escalation": `// Flags a process spawned by a non-admin user that requests admin-level
-// privileges shortly after a suspicious download.
+    "Privilege Escalation": `// PRIVILEGE ESCALATION — a normal user's program asking for admin (full-control) powers
 rule PrivilegeEscalation {
-  when event.type == "process_start"
-    and event.requested_privilege == "admin"
-    and user.is_admin == false
-    and event.process contains "powershell"
+  when event.type == "process_start"                 // only look at programs starting up
+    and event.requested_privilege == "admin"         // it's asking for admin-level access
+    and user.is_admin == false                       // ...AND the person running it isn't actually an admin
+    and event.process contains "powershell"           // ...AND it's a PowerShell process — try "cmd.exe" instead
   within 5m
   severity: critical
   tags: "privilege-escalation", "endpoint"
   description: "Non-admin user's PowerShell process requested admin privileges"
 }
 `,
-    "+ Blank template": `// Write your own rule here. Every field except "when" is optional.
+    "✏️ Start your own (blank)": `// YOUR TURN — this is a real, working rule. Edit anything below and watch
+// panels 2 and 3 update live. Every field except "when" is optional.
 rule MyDetection {
-  when event.type == "login"
-    and event.failed_attempts >= 5
-  severity: medium
-  tags: "example"
+  when event.type == "login"                        // 1. what kind of event are you watching for?
+    and event.failed_attempts >= 5                   // 2. change this number, or add more lines with "and" / "or"
+  severity: medium                                    // low, medium, high, or critical
+  tags: "example"                                      // optional labels, comma-separated
   description: "Describe what this rule catches, in plain words"
 }
 `,
@@ -71,7 +68,7 @@ rule MyDetection {
     "Impossible Travel": "Detects two logins for the same account that imply travel faster than a commercial flight.",
     "Data Exfiltration": "Detects unusually large file transfers leaving the network outside business hours.",
     "Privilege Escalation": "Detects a non-admin user's PowerShell process requesting admin-level access.",
-    "+ Blank template": "A minimal starting point — replace the conditions with your own idea and watch it compile live.",
+    "✏️ Start your own (blank)": "Not an example to study — a real empty starting point. Type your own rule here from scratch.",
   };
 
   const SAMPLE_LOGS = [
@@ -199,6 +196,20 @@ rule MyDetection {
     });
   });
 
+  // ---- Top-level view tabs (Write & Test vs. See it Translated) ----
+
+  const viewTabButtons = document.querySelectorAll(".view-tab-btn");
+  const views = { "write-test": document.getElementById("view-write-test"), "translate": document.getElementById("view-translate") };
+
+  viewTabButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      viewTabButtons.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      Object.values(views).forEach((v) => v.classList.remove("active"));
+      views[btn.dataset.view].classList.add("active");
+    });
+  });
+
   Object.keys(EXAMPLES).forEach((name) => {
     const opt = document.createElement("option");
     opt.value = name;
@@ -229,13 +240,11 @@ rule MyDetection {
     editor.focus();
   });
 
-  // ---- Help panel + tip banner ----
+  // ---- Help panel ----
 
   const helpBtn = document.getElementById("help-btn");
   const helpOverlay = document.getElementById("help-overlay");
   const helpClose = document.getElementById("help-close");
-  const tipBanner = document.getElementById("tip-banner");
-  const tipClose = document.getElementById("tip-close");
 
   function openHelp() { helpOverlay.classList.add("open"); }
   function closeHelp() { helpOverlay.classList.remove("open"); }
@@ -248,14 +257,6 @@ rule MyDetection {
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeHelp();
   });
-
-  tipClose.addEventListener("click", () => {
-    tipBanner.classList.add("hidden");
-    try { localStorage.setItem("shieldql-tip-dismissed", "1"); } catch (e) {}
-  });
-  try {
-    if (localStorage.getItem("shieldql-tip-dismissed") === "1") tipBanner.classList.add("hidden");
-  } catch (e) {}
 
   // Initial load
   exampleSelect.value = "Credential Stuffing";
