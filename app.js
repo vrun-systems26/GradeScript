@@ -401,7 +401,7 @@ class SpanishI {
       <div class="grade-row" data-cat="${escapeHtml(cat.name)}">
         <span class="grade-row-cat">${escapeHtml(cat.name)}</span>
         <span class="grade-row-weight">${cat.weight}%</span>
-        <input type="number" class="grade-row-avg-input" min="0" max="100" step="0.1" placeholder="e.g. 85" value="${val === undefined || val === "" ? "" : val}" />
+        <input type="text" class="grade-row-avg-input" inputmode="decimal" placeholder="N/A" value="${val === undefined || val === "" ? "" : escapeHtml(String(val))}" />
       </div>`;
     }).join("");
 
@@ -412,7 +412,7 @@ class SpanishI {
         <div class="grade-hero-number" id="grade-current-num">—</div>
         <div class="grade-hero-letter" id="grade-current-letter">n/a</div>
       </div>
-      <div class="grade-caption">Type your current average into each category below (e.g. "85" if you're at an 85% so far). Leave a category blank if you haven't started it yet — not a final verdict, just where things stand right now.</div>
+      <div class="grade-caption">Type your current average into each category below (e.g. "85" if you're at an 85% so far). Haven't started that category yet? Leave it blank or type "N/A" — either way it's treated as no data, not a zero. Not a final verdict, just where things stand right now.</div>
       <div class="grade-range" id="grade-range"></div>
       <div class="grade-breakdown">
         <div class="grade-row grade-row-head">
