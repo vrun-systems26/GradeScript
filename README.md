@@ -2,7 +2,7 @@
 
 **Write your grading policy once. Get a live calculator, a syllabus paragraph, a spreadsheet formula, and an LMS config — automatically.**
 
-Built for [Syntax Summit](https://syntax-summit.devpost.com/).
+Built for [Build Beyond](https://build-beyond-hackathon.devpost.com/).
 
 ## The problem
 

@@ -23,8 +23,8 @@ classes at once, with an overall GPA).
 
 ## [0:00–0:15] Cold open
 
-> "Hi, I'm [your name]. This is GradeScript, my project for Syntax
-> Summit."
+> "Hi, I'm [your name]. This is GradeScript, my project for Build
+> Beyond."
 
 ## [0:15–1:00] The landing page
 
