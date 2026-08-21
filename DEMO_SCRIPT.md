@@ -5,7 +5,9 @@ to someone who has never seen this project before. Practice it 2-3 times
 so it sounds like you, not like you're reading — but the words are all
 here so you don't have to improvise definitions on the spot.
 
-Every unfamiliar term is defined **the moment it's said**.
+Every unfamiliar term is defined **the moment it's said**. Nothing in this
+script name-drops a specific award category on purpose — the goal is for
+the substance to make the case, not the pitch.
 
 Before recording: open a fresh browser tab at `index.html` (or `node
 serve.js` → `http://localhost:5173`) so the very first thing on screen is
@@ -41,30 +43,28 @@ classes at once, with an overall GPA).
 
 *[Action: click "Open the playground →"]*
 
-## [1:00–1:20] First look
+## [1:00–1:45] The table editor — and proof it's real
 
-*[Screen: the "📊 Build" tab, active by default]*
+*[Screen: the "📊 Build" tab, active by default, pointing at the table]*
 
-> "This is Biology, one of six classes loaded by default. Up top: a
-> dropdown to switch classes, and a help button. We're on the 'Build' tab
-> — that's a table on the left, and my live grade on the right."
-
-## [1:20–2:00] The table editor
-
-*[Screen: point at the table]*
-
-> "This is the whole policy: Homework is worth 15%, Tests 40%, Labs 25%,
-> Final 20%. If homework comes in late, it's capped at 70% instead of
-> zero. Tests can be retaken, capped at 80%.
+> "This is Biology, one of six classes loaded by default. This table is
+> the whole policy: Homework is worth 15%, Tests 40%, Labs 25%, Final 20%.
+> If homework comes in late, it's capped at 70% instead of zero. Tests can
+> be retaken, capped at 80%.
 >
-> No code, no syntax to learn — just a table. But it's not fake: click
-> 'View the generated code' — [action: click it] — and that's a real,
-> compiling program underneath. Editing the table regenerates this text
-> and re-runs it through an actual parser every time you type."
+> No code, no syntax to learn — just a table. But it's not a fake mockup:
+> click 'View the generated code' —"
 
-## [2:00–2:45] The live grade + the reverse solver (the big moment)
+*[Action: click "View the generated code"]*
 
-*[Screen: point at the right panel — the category rows have real number
+> "— and that's a real, compiling program underneath. Editing the table
+> regenerates this text and re-runs it through an actual parser every time
+> you type. This isn't a form bolted onto a static page — it's a language
+> with a friendly front end."
+
+## [1:45–2:30] The live grade
+
+*[Screen: point at the right panel — category rows have real number
 inputs, pre-filled with example numbers you can overwrite]*
 
 > "Each category has a box where I type my actual average so far — right
@@ -75,67 +75,79 @@ inputs, pre-filled with example numbers you can overwrite]*
 *[Action: click into the Final category's box, type a number]*
 
 > "Watch — I type a number into Final, and the grade updates instantly,
-> live, as I type. No submit button.
->
-> Now here's the part almost no other calculator has: 'What do I need?'"
-
-*[Action: point at the solver widget, type a target grade like 90]*
-
-> "I just asked: what do I need on the Final to get a 90% overall? It
-> solved backward and told me the exact minimum score. Most calculators
-> only go forward — enter scores, get an average. This one answers the
-> question people actually ask their teacher: 'what do I need on the
-> final?'"
+> live, as I type. No submit button."
 
 *[Action: edit a category weight in the table live]*
 
-> "And it's all still live — watch what happens when I change a weight —
-> [point at grade updating] — instantly recalculated, no save button."
+> "Same thing if I change a weight — [point at grade updating] — every
+> number on this screen is recalculated live, every keystroke."
 
-## [2:45–3:30] See it translated
+## [2:30–3:00] The reverse solver — the big moment
+
+*[Action: point at the solver widget, type a target grade like 90]*
+
+> "Here's the part almost no other calculator has. I just asked: what do
+> I need on the Final to get a 90% overall? It solved backward and told me
+> the exact minimum score. Every calculator I've tried only goes forward —
+> enter scores, get an average. This one answers the question people
+> actually ask their teacher: 'what do I need on the final?' — because
+> under the hood it's not just averaging, it's solving an equation."
+
+## [3:00–3:35] See it translated
 
 *[Action: click "🔄 See it Translated"]*
 
-> "Same policy, three more formats. This is a syllabus paragraph a
-> teacher could paste straight into their course syllabus."
+> "Same policy, three more formats — and this is the part that's genuinely
+> hard to fake: watch me click through all three, and every single one
+> stays consistent with what I just typed, because they're not written
+> separately — they're generated from the same parsed structure."
 
-*[Action: click "Spreadsheet"]*
+*[Action: click "Spreadsheet", then "LMS Config"]*
 
-> "This is a real spreadsheet formula — paste it into Google Sheets or
-> Excel and it computes your grade from category averages."
+> "A real spreadsheet formula you could paste into Google Sheets right
+> now. And a config shaped like what a school's learning management
+> system — Canvas, for example — uses for weighted assignment groups."
 
-*[Action: click "LMS Config"]*
-
-> "And this approximates the kind of config a school's learning
-> management system — Canvas, for example — uses for weighted assignment
-> groups."
-
-## [3:30–4:15] The GPA Dashboard
+## [3:35–4:05] The GPA Dashboard
 
 *[Action: click "🎓 GPA Dashboard"]*
 
-> "This is the feature I'm most proud of. Every grade calculator I've
-> ever seen only shows you one class. This shows all six of my default
-> classes at once, converts each grade to GPA points on the standard 4.0
-> scale, and averages them into one overall GPA — [point at the big
-> number]. Nobody else does this in a browser-based calculator."
+> "This is the feature I'm most proud of. Every grade calculator I've ever
+> seen only shows you one class. This shows all six of my default classes
+> at once, converts each grade to GPA points on the standard 4.0 scale,
+> and averages them into one overall GPA — [point at the big number].
+> Nobody else does this in a browser-based calculator."
 
-## [4:15–4:40] It's not just a website
+## [4:05–4:25] It remembers everything — no login, no server
+
+*[Action: rename a class in the table, e.g. type over "Biology" with something else, then press F5 to refresh the whole page]*
+
+> "One more thing that surprises people: I just renamed this class and I'm
+> about to refresh the entire page —"
+
+*[Action: point at the class name and grade still showing correctly after refresh]*
+
+> "— and it's all still exactly how I left it. No account, no login, no
+> server anywhere. It's just saved in the browser itself, automatically,
+> every time you type."
+
+## [4:25–4:45] It's not just a website
 
 *[Screen: switch to terminal]*
 
-> "There's also a command-line version — same compiler, straight from a
-> terminal."
+> "And it's not only a browser trick — there's a command-line version too,
+> same compiler, straight from a terminal."
 
 *[Action: run `node cli.js test examples/biology.gradescript sample-logs/logs.json`]*
 
-## [4:40–5:00] Why it matters, and close
+## [4:45–5:00] Why it matters, and close
 
-> "Teachers write grading policies by hand for a syllabus, and separately
-> build a spreadsheet, and separately configure an LMS — three places the
-> same idea can drift apart. GradeScript means you describe the policy
-> once, and trust it everywhere it needs to go. That's GradeScript —
-> thanks for watching."
+> "Teachers write grading policies by hand for a syllabus, separately
+> build a spreadsheet, separately configure an LMS — three places for the
+> same idea to quietly drift apart. GradeScript is one source of truth
+> that every format gets generated from, the same idea behind tools that
+> turned infrastructure config from copy-pasted scripts into something
+> reliable. That's GradeScript — thanks for watching."
 
 ---
 
@@ -143,13 +155,16 @@ inputs, pre-filled with example numbers you can overwrite]*
 
 1. Land on the welcome screen → talk over it → click **"Open the
    playground →"**
-2. Point at the table on the "Build" tab, read a category or two out loud
-3. Click "View the generated code" to prove it's real
-4. Point at the live grade, then use the "What do I need?" solver
-5. Edit a weight in the table → point at the grade updating live
-6. Click **"🔄 See it Translated"** → click through Syllabus / Spreadsheet
+2. Point at the table on the "Build" tab → click "View the generated code"
+   to prove it's real
+3. Point at the live grade → type into the Final category's box → edit a
+   weight → point at everything updating live
+4. Use the "What do I need?" solver
+5. Click **"🔄 See it Translated"** → click through Syllabus / Spreadsheet
    / LMS Config
-7. Click **"🎓 GPA Dashboard"** → point at the overall GPA number
+6. Click **"🎓 GPA Dashboard"** → point at the overall GPA number
+7. Back on "Build" → rename the class → press F5 to refresh the whole page
+   → point out everything survived
 8. Switch to terminal → run the `node cli.js test ...` command shown above
 9. Close on the "why it matters" line
 
@@ -171,3 +186,7 @@ inputs, pre-filled with example numbers you can overwrite]*
 - **"Can this be extended to more formats?"** — "Yes — everything reads
   from one shared parsed structure, so adding a new target is one new
   function, not a language change."
+- **"Where exactly is the saved data stored?"** — "The browser's
+  `localStorage` — the same standard mechanism any web app uses to
+  remember state between visits. Nothing is sent anywhere; it never
+  leaves your machine."
