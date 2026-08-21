@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>ShieldQL Playground</title>
+<title>PulseQL Playground</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="stylesheet" href="styles.css" />
 </head>
@@ -12,40 +12,40 @@
 
       <section class="landing-slide active" data-slide="1">
         <div class="eyebrow">BUILT FOR SYNTAX SUMMIT</div>
-        <h1 id="landing-title" aria-label="ShieldQL">
-          <span class="letter" data-char="S">0</span><span class="letter" data-char="h">1</span><span class="letter" data-char="i">0</span><span class="letter" data-char="e">1</span><span class="letter" data-char="l">0</span><span class="letter" data-char="d">1</span><span class="letter accent" data-char="Q">0</span><span class="letter accent" data-char="L">1</span>
+        <h1 id="landing-title" aria-label="PulseQL">
+          <span class="letter" data-char="P">0</span><span class="letter" data-char="u">1</span><span class="letter" data-char="l">0</span><span class="letter" data-char="s">1</span><span class="letter" data-char="e">0</span><span class="letter accent" data-char="Q">1</span><span class="letter accent" data-char="L">0</span>
         </h1>
-        <p class="landing-tagline">One rule in. Three security languages out.</p>
+        <p class="landing-tagline">One rule in. Three smart-home platforms out.</p>
       </section>
 
       <section class="landing-slide" data-slide="2">
         <div class="eyebrow">THE IDEA</div>
         <p class="landing-explain">
-          Security teams hand-write the same detection rule for every tool they run.
-          <strong>ShieldQL is a tiny language that lets you write it once</strong> —
+          Every smart-home platform wants your automation written its own way.
+          <strong>PulseQL is a tiny language that lets you write it once</strong> —
           and generates the rest.
         </p>
         <div class="marquee-wrap">
           <div class="marquee-track">
-            <span>LEXER</span><span>PARSER</span><span>AST</span><span>INTERPRETER</span><span>SPLUNK SPL</span><span>SIGMA YAML</span><span>ELASTIC EQL</span><span>ZERO DEPENDENCIES</span><span>LIVE TESTER</span>
-            <span aria-hidden="true">LEXER</span><span aria-hidden="true">PARSER</span><span aria-hidden="true">AST</span><span aria-hidden="true">INTERPRETER</span><span aria-hidden="true">SPLUNK SPL</span><span aria-hidden="true">SIGMA YAML</span><span aria-hidden="true">ELASTIC EQL</span><span aria-hidden="true">ZERO DEPENDENCIES</span><span aria-hidden="true">LIVE TESTER</span>
+            <span>LEXER</span><span>PARSER</span><span>AST</span><span>INTERPRETER</span><span>HOME ASSISTANT</span><span>NODE-RED</span><span>IFTTT</span><span>ZERO DEPENDENCIES</span><span>LIVE TESTER</span>
+            <span aria-hidden="true">LEXER</span><span aria-hidden="true">PARSER</span><span aria-hidden="true">AST</span><span aria-hidden="true">INTERPRETER</span><span aria-hidden="true">HOME ASSISTANT</span><span aria-hidden="true">NODE-RED</span><span aria-hidden="true">IFTTT</span><span aria-hidden="true">ZERO DEPENDENCIES</span><span aria-hidden="true">LIVE TESTER</span>
           </div>
         </div>
         <div class="landing-compare">
           <div class="landing-compare-col">
-            <span class="landing-compare-label bad">Today, without ShieldQL</span>
+            <span class="landing-compare-label bad">Today, without PulseQL</span>
             <div class="landing-compare-box">
-              <span>1 detection idea</span>
+              <span>1 automation idea</span>
               <span class="landing-compare-arrow">↓ written by hand, 3 times</span>
-              <span class="landing-compare-list">Splunk rule · Sigma rule · Elastic rule<br/><em>— can silently drift out of sync —</em></span>
+              <span class="landing-compare-list">Home Assistant automation · Node-RED flow · IFTTT Applet<br/><em>— can silently drift out of sync —</em></span>
             </div>
           </div>
           <div class="landing-compare-col">
-            <span class="landing-compare-label good">With ShieldQL</span>
+            <span class="landing-compare-label good">With PulseQL</span>
             <div class="landing-compare-box good">
-              <span>1 detection idea</span>
+              <span>1 automation idea</span>
               <span class="landing-compare-arrow">↓ written once</span>
-              <span class="landing-compare-list">→ Splunk<br/>→ Sigma<br/>→ Elastic<br/><em>— generated, always in sync —</em></span>
+              <span class="landing-compare-list">→ Home Assistant<br/>→ Node-RED<br/>→ IFTTT<br/><em>— generated, always in sync —</em></span>
             </div>
           </div>
         </div>
@@ -95,7 +95,7 @@
   <header>
     <div class="brand">
       <div class="brand-top">
-        <span class="logo">ShieldQL</span>
+        <span class="logo">PulseQL</span>
         <span class="logo-badge">DSL compiler</span>
       </div>
       <div id="example-description"></div>
@@ -116,8 +116,8 @@
       <div class="help-panel-body">
         <section>
           <h3>The problem, in one picture</h3>
-          <p>Today: one detection idea gets hand-written 3 times (Splunk, Sigma,
-          Elastic) and the copies can drift apart. With ShieldQL: you write it
+          <p>Today: one automation idea gets hand-written 3 times (Home Assistant,
+          Node-RED, IFTTT) and the copies can drift apart. With PulseQL: you write it
           <strong>once</strong>, and the 3 versions are generated from that one
           source, so they can't disagree with each other.</p>
         </section>
@@ -125,22 +125,21 @@
           <h3>Navigating it (30 seconds)</h3>
           <ol>
             <li>Pick a rule from the <strong>"Load example"</strong> dropdown, top right.</li>
-            <li>You start on the <strong>"✏️ Write &amp; Test"</strong> tab: the rule itself on the left, in plain syntax. The right side runs it live against 7 pretend security events.</li>
-            <li>Try it: change a number in the rule (like <code>&gt;= 5</code>) and watch the right side re-check itself instantly, no save or reload.</li>
-            <li>Click the <strong>"🔄 See it Translated"</strong> tab, top of the page, to see that same rule written in 3 real security tool languages — the pill buttons at the top switch between them. All three come from the exact same rule, so they can't disagree with each other.</li>
+            <li>You start on the <strong>"✏️ Write &amp; Test"</strong> tab: the rule itself on the left, in plain syntax. The right side runs it live against 7 pretend sensor readings.</li>
+            <li>Try it: change a number in the rule (like <code>&lt; 20</code>) and watch the right side re-check itself instantly, no save or reload.</li>
+            <li>Click the <strong>"🔄 See it Translated"</strong> tab, top of the page, to see that same rule written for 3 real smart-home platforms — the pill buttons at the top switch between them. All three come from the exact same rule, so they can't disagree with each other.</li>
           </ol>
         </section>
         <section>
           <h3>Quick glossary</h3>
           <dl>
-            <dt>Splunk</dt><dd>A tool companies use to search huge piles of computer activity logs and set up alarms on them.</dd>
-            <dt>Sigma</dt><dd>Not a tool — a shared, open way of writing down an alarm idea so people using different tools can trade rules with each other.</dd>
-            <dt>Elastic / EQL</dt><dd>Another company's log-search tool, similar job to Splunk, own language called EQL.</dd>
-            <dt>SOC</dt><dd>"Security Operations Center" — the team that watches for attacks all day.</dd>
-            <dt>DSL</dt><dd>"Domain-Specific Language" — a small language built for one job only (here: writing security rules), instead of a general-purpose language like Python.</dd>
-            <dt>Rule</dt><dd>One "if this happens, flag it" statement — the thing you write in the left box on the "Write & Test" tab.</dd>
+            <dt>Home Assistant</dt><dd>The most popular open-source smart-home platform — you write "automations" in YAML that react to sensors and control devices.</dd>
+            <dt>Node-RED</dt><dd>A visual automation tool where you wire together little boxes ("nodes") instead of writing a linear script — its saved format is JSON.</dd>
+            <dt>IFTTT</dt><dd>"If This Then That" — a mainstream, beginner-friendly automation app most people have heard of, using simple "Applets."</dd>
+            <dt>DSL</dt><dd>"Domain-Specific Language" — a small language built for one job only (here: writing automation rules), instead of a general-purpose language like Python.</dd>
+            <dt>Rule</dt><dd>One "if this happens, do that" statement — the thing you write in the left box on the "Write & Test" tab.</dd>
             <dt>Compile / transpile</dt><dd>Automatically translating one piece of code into another language without a human rewriting it by hand.</dd>
-            <dt>within (honest note)</dt><dd>Sets a time window on the rule (e.g. <code>within 10m</code>) and gets passed to each target's own time-window syntax. The live tester below evaluates one event at a time — it doesn't yet simulate a real multi-event time window itself.</dd>
+            <dt>within (honest note)</dt><dd>Sets a time window on the rule (e.g. <code>within 15m</code>) and gets passed to each target's own time-window mechanism. The live tester below evaluates one reading at a time — it doesn't yet simulate a real multi-reading time window itself.</dd>
           </dl>
           <p class="help-more">Full write-up: <a href="GLOSSARY.md">GLOSSARY.md</a> · Full syntax: <a href="LANGUAGE.md">LANGUAGE.md</a></p>
         </section>
@@ -179,9 +178,9 @@
         <div class="pane-header">
           <span class="pane-title"><span class="pane-icon">🔄</span>Translated</span>
           <div class="tabs">
-            <button class="tab-btn active" data-target="splunk">Splunk SPL</button>
-            <button class="tab-btn" data-target="sigma">Sigma YAML</button>
-            <button class="tab-btn" data-target="eql">Elastic EQL</button>
+            <button class="tab-btn active" data-target="homeassistant">Home Assistant</button>
+            <button class="tab-btn" data-target="nodered">Node-RED</button>
+            <button class="tab-btn" data-target="ifttt">IFTTT</button>
           </div>
         </div>
         <div id="output-wrap"><pre id="output"></pre></div>

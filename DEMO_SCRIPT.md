@@ -6,8 +6,8 @@ it sounds like you, not like you're reading — but the words are all here so
 you don't have to improvise definitions on the spot.
 
 Every unfamiliar term is defined **the moment it's said**, not before or
-after — so you never have to assume the viewer already knows what Splunk,
-Sigma, or a "rule" means.
+after — so you never have to assume the viewer already knows what Home
+Assistant, Node-RED, IFTTT, or a "rule" means.
 
 Before recording: open a fresh browser tab at `index.html` (or `node
 serve.js` → `http://localhost:5173`) so the very first thing on screen is
@@ -17,39 +17,37 @@ background for the CLI part near the end.
 **Layout note:** the tool has two top-level tabs at the top of the page:
 **"✏️ Write & Test"** (the default view — the rule editor and the live test
 results, side by side) and **"🔄 See it Translated"** (a second tab showing
-the same rule compiled into Splunk/Sigma/Elastic). You start on the first
-tab and switch to the second partway through.
+the same rule compiled for Home Assistant, Node-RED, and IFTTT). You start
+on the first tab and switch to the second partway through.
 
 ---
 
 ## [0:00–0:15] Cold open — before you even share your screen
 
-> "Hi, I'm [your name]. This is ShieldQL, my project for Syntax Summit."
+> "Hi, I'm [your name]. This is PulseQL, my project for Syntax Summit."
 
 ## [0:15–1:00] The landing page (screen: the welcome screen, untouched)
 
-*[Screen: the landing page — title, tagline, the "today vs ShieldQL" comparison, green button]*
+*[Screen: the landing page — title, tagline, the "today vs PulseQL" comparison, green button]*
 
-> "Before I touch any code, let me explain what this actually does, because
-> the name won't mean anything yet.
+> "Before I touch any code, let me explain what this actually does.
 >
-> Big security companies — like **Splunk** and **Elastic** — sell tools
-> that watch over a company's computers. Every time someone logs in, opens
-> a file, or does basically anything, it gets written down, and these
-> tools let a security team search through all of that and set up alarms
-> for suspicious behavior.
+> If you've set up any smart-home gadgets, you've probably run into one of
+> three platforms: **Home Assistant**, the most popular open-source
+> home-automation platform, where you write rules called 'automations' in a
+> config format called YAML. **Node-RED**, a visual tool where instead of
+> writing a script, you wire together little boxes on a canvas. Or
+> **IFTTT** — 'If This Then That' — which most people have at least heard
+> of, where you build simple rules called 'Applets.'
 >
-> There's also something called **Sigma** — that's not a company or a
-> tool, it's just a shared way of *writing down* an alarm idea on paper,
-> so people using different tools can trade ideas with each other.
+> Here's the problem: each of those three wants your automation idea
+> written in a completely different way. So if you want the same idea
+> working in more than one — which is really common, since people mix
+> platforms — you end up writing it by hand three separate times. That's
+> this picture right here [point at the comparison box]: one idea,
+> hand-written three times, that can quietly drift out of sync.
 >
-> Here's the problem: Splunk, Sigma, and Elastic each want that alarm
-> written in a totally different style. So today, a security person writes
-> the same alarm three separate times by hand — which is slow, and easy to
-> get wrong. That's this picture right here [point at the comparison box]:
-> one idea, hand-written three times, that can quietly drift out of sync.
->
-> ShieldQL fixes that. You write the alarm once, in plain words, and it
+> PulseQL fixes that. You write the automation once, in plain words, and it
 > automatically produces all three versions for you. Let's click in."
 
 *[Action: click "Open the playground →"]*
@@ -59,10 +57,10 @@ tab and switch to the second partway through.
 *[Screen: the tool, "✏️ Write & Test" tab active by default]*
 
 > "Okay, now we're inside the actual tool. Up top: the project name, a
-> dropdown to load different example alarms, and a help button if anyone
+> dropdown to load different example rules, and a help button if anyone
 > watching this wants a guide without me talking. Right under that,
 > there's always a one-line description telling you exactly which example
-> is loaded and what it catches.
+> is loaded and what it does.
 >
 > There are two tabs at the top of the page. We're on 'Write & Test' right
 > now — that's the rule editor and a live tester, side by side. There's a
@@ -72,14 +70,12 @@ tab and switch to the second partway through.
 
 *[Screen: point at the left box, "Write the rule"]*
 
-> "This left box is where you write one alarm — we call it a **rule**.
-> This example is called Credential Stuffing — that's a real attack where
-> someone steals a big list of passwords and tries them all against
-> different accounts, hoping one works.
+> "This left box is where you write one automation — we call it a **rule**.
+> This example is called Motion-Activated Lighting.
 >
-> Reading it out loud, in plain English: 'when someone logs in, AND they
-> got the password wrong 5 or more times, AND they're suddenly logging in
-> from a different country than usual — flag it as high severity.'
+> Reading it out loud, in plain English: 'when a motion sensor detects
+> movement, AND the room is dark, AND it's evening or later — turn on the
+> lights.'
 >
 > That's it. No special training needed to read that. Notice there are
 > even comments right next to each line, in gray, explaining what it does
@@ -89,75 +85,75 @@ tab and switch to the second partway through.
 
 ## [2:00–3:00] The live test panel (the big moment)
 
-*[Screen: point at the right box, "Prove it actually works"]*
+*[Screen: point at the right box, "Live results"]*
 
 > "This right box is my favorite part. It's running this exact rule, right
-> now, against 7 made-up example security events — logins, file transfers,
-> that kind of thing — and showing which ones it would catch. Right now
-> it's correctly flagging the credential-stuffing pattern and correctly
-> ignoring the six innocent ones.
+> now, against 7 made-up example sensor readings — motion, temperature,
+> water, soil moisture — and showing which ones it would trigger on. Right
+> now it's correctly flagging the dark-evening motion reading and correctly
+> ignoring the six that don't match.
 >
 > Now watch — I'm going to edit the rule live."
 
-*[Action: click into the rule editor, change `>= 5` to `>= 2`]*
+*[Action: click into the rule editor, change the light-level threshold, e.g. `< 20` to `< 90`]*
 
-> "I just changed the rule to flag anyone with 2 or more wrong passwords
-> instead of 5. Watch the list on the right — [point] — it instantly
-> re-checked all 7 events again, with no save button, no reload, nothing.
-> That proves this is a real, working program thinking through my rule as
-> I type it — not a video or a mockup."
+> "I just changed the rule to trigger on a much brighter room. Watch the
+> list on the right — [point] — it instantly re-checked all 7 readings
+> again, with no save button, no reload, nothing. That proves this is a
+> real, working program thinking through my rule as I type it — not a
+> video or a mockup."
 
 ## [3:00–3:45] Switching tabs — the three translations
 
 *[Action: click the "🔄 See it Translated" tab at the top of the page]*
 
 > "Now let's switch tabs. This is the same rule I was just editing,
-> rewritten into three real security languages. Watch me click through
+> rewritten into three real smart-home formats. Watch me click through
 > them."
 
-*[Action: click "Splunk SPL" tab]*
+*[Action: click "Home Assistant" tab]*
 
-> "This is **Splunk's** language — remember, Splunk is one of the biggest
-> tools security teams use to search their logs. This is exactly what
-> you'd paste into Splunk to make this alarm real."
+> "This is **Home Assistant's** format — remember, that's the most popular
+> open-source home-automation platform. This is exactly what you'd paste
+> into a Home Assistant config to make this automation real."
 
-*[Action: click "Sigma YAML" tab]*
+*[Action: click "Node-RED" tab]*
 
-> "This is **Sigma** — the shared, open format I mentioned earlier, so
-> this same alarm could be published for other security teams to use in
-> whatever tool *they* have."
+> "This is a **Node-RED** flow — remember, the visual wire-together tool.
+> This JSON is exactly what Node-RED saves behind the scenes when you wire
+> up nodes by hand — including a real function node with actual JavaScript
+> implementing the logic, which is genuinely how you'd handle a rule this
+> specific in Node-RED."
 
-*[Action: click "Elastic EQL" tab]*
+*[Action: click "IFTTT" tab]*
 
-> "And this is **Elastic's** language — Elastic is another major company
-> that does the same job as Splunk, with its own tool and its own way of
-> writing things.
+> "And this is an **IFTTT** Applet — the one almost everyone's heard of.
 >
 > I didn't write any of these three by hand — my program read the one
-> plain rule and generated all three. And down here [point at the tip
-> line] — where a translation genuinely can't be done perfectly, like
-> Sigma not being able to compare two different pieces of information to
-> each other, it says so honestly instead of pretending it worked."
+> plain rule and generated all three. And where a translation genuinely
+> can't be done perfectly — like IFTTT having no memory of previous runs
+> for time-based rules — it says so honestly instead of pretending it
+> worked."
 
 ## [3:45–4:15] It's not just a website
 
 *[Screen: switch to terminal]*
 
 > "One more thing — this isn't only a webpage. There's also a
-> command-line version, so a security team could run this as part of
-> their normal automated tools."
+> command-line version, so this could run as part of an automated setup
+> process."
 
-*[Action: run `node cli.js compile examples/impossible-travel.shieldql --target=sigma`]*
+*[Action: run `node cli.js compile examples/leak-prevention.shieldql --target=nodered`]*
 
 > "Same program, same correct output, straight from the terminal."
 
 ## [4:15–5:00] Why it matters, and close
 
-> "Real security teams almost never use just one tool — and today they
-> maintain the same alarm logic separately for each one, which drifts out
-> of sync over time. ShieldQL means you write your security knowledge
-> once, and trust it everywhere it needs to go. That's ShieldQL — thanks
-> for watching."
+> "Very few smart homes run just one platform — people mix Home Assistant
+> with Node-RED for the logic Home Assistant can't express cleanly, and
+> plenty of households only ever touch IFTTT. PulseQL means you write your
+> automation idea once, and trust it everywhere it needs to go. That's
+> PulseQL — thanks for watching."
 
 ---
 
@@ -169,10 +165,10 @@ tab and switch to the second partway through.
    description line — don't click yet
 3. Point at the left box (the rule) — read it out loud, mention the inline
    comments
-4. Point at the right box (test results) → click into the editor → change
-   `>= 5` to `>= 2` → point at the results updating live
+4. Point at the right box (live results) → click into the editor → change
+   the light-level number → point at the results updating live
 5. Click the **"🔄 See it Translated"** tab, top of page
-6. Click **Splunk SPL** → **Sigma YAML** → **Elastic EQL**, in that order
+6. Click **Home Assistant** → **Node-RED** → **IFTTT**, in that order
 7. Switch to terminal → run the `node cli.js compile ...` command shown
    above
 8. Close on the "why it matters" line — no need to go back on screen
@@ -183,26 +179,23 @@ You don't have to know everything — it's fine to say "that's a great
 question, let me follow up" — but here are the ones most likely to come
 up:
 
-- **"Isn't this just like existing Sigma-to-X converters (e.g.
-  Uncoder.io)?"** — "That's fair, rule translation isn't a brand-new idea.
-  What's different here is ShieldQL is a purpose-built *authoring*
-  language with its own live tester built in — you can prove a rule
-  actually catches the right events before you ever export it anywhere,
-  which a pure converter can't do since it starts from an already-written
-  Sigma rule."
-- **"What happens if the rule uses `or` or `not`?"** — "The Elastic
-  version handles it natively. The Sigma version currently flags that
-  case with a note since Sigma's flat format can't express it cleanly —
-  that's a documented, honest limitation, not a bug."
-- **"Can this be extended to more tools?"** — "Yes — since everything
-  reads from one shared parsed structure, adding a new target like YARA or
-  Suricata is one new function, not a language change."
-- **"Does `within 10m` actually check events over a real 10-minute
+- **"Isn't this just a converter between existing formats?"** — "Fair
+  question, but PulseQL isn't converting an existing Home Assistant config
+  into Node-RED — it's a purpose-built *authoring* language with its own
+  live tester built in, so you can prove a rule actually does what you
+  want before you ever export it anywhere."
+- **"What happens if the rule uses `or` or `not`?"** — "The Node-RED and
+  IFTTT targets handle it natively, since they both compile to real
+  JavaScript conditions. Home Assistant's template trigger also supports
+  it directly through Jinja-style `and`/`or`/`not`."
+- **"Can this be extended to more platforms?"** — "Yes — since everything
+  reads from one shared parsed structure, adding a new target like openHAB
+  or SmartThings is one new function, not a language change."
+- **"Does `within 3m` actually check readings over a real 3-minute
   window?"** — Answer honestly here, this is the most likely sharp
   question: "Not in the current interpreter. `within` gets passed through
-  to each target's own time-window syntax — like Splunk's `earliest=`,
-  Sigma's `timeframe:`, or Elastic's time range picker — so the *generated
-  code* is correct. But the local live-tester evaluates one event at a
-  time, not a rolling window across a sequence of events. Real temporal
-  correlation is a natural next step, not something I'm claiming this
-  version already does."
+  to each target's own time-window mechanism where one exists — like Home
+  Assistant's `for:` key — so the *generated code* is correct. But the
+  local live-tester evaluates one reading at a time, not a rolling window
+  across a sequence of readings. Real temporal correlation is a natural
+  next step, not something I'm claiming this version already does."

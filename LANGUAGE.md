@@ -1,8 +1,8 @@
-# ShieldQL language reference
+# PulseQL language reference
 
 ## A rule
 
-Every ShieldQL source file (or playground buffer) is one or more `rule`
+Every PulseQL source file (or playground buffer) is one or more `rule`
 blocks:
 
 ```
@@ -41,19 +41,19 @@ parentheses to override precedence, e.g. `(a or b) and c`.
 
 Fields are referenced as dotted paths. By convention the two roots are:
 
-- `event.*` — fields on the event being evaluated (e.g. `event.type`,
-  `event.failed_attempts`).
-- `user.*` — fields on the user/account associated with the event (e.g.
-  `user.home_country`, `user.is_admin`).
+- `sensor.*` — fields on the sensor reading being evaluated (e.g.
+  `sensor.type`, `sensor.light_level`, `sensor.leak_detected`).
+- `home.*` — fields on the whole-home state associated with the reading
+  (e.g. `home.occupancy_count`, `home.hour`).
 
 Any root name is legal — the interpreter resolves whatever context object
-you pass it — but `event` and `user` are what the code generators and
+you pass it — but `sensor` and `home` are what the code generators and
 sample data use.
 
 ## Literals
 
 - **String:** `"double quoted"`, supports `\"` and `\\` escapes.
-- **Number:** `5`, `900`, `500000000`, `0.5`.
+- **Number:** `5`, `20`, `500000000`, `0.5`.
 - **Duration:** a number immediately followed by a unit with no space —
   `10m`, `30s`, `1h`, `7d`, `500ms`. Valid units: `ms`, `s`, `m`, `h`, `d`.
   Durations are only meaningful after `within` in the current version.
@@ -79,17 +79,16 @@ sample data use.
 ## Full example
 
 ```
-// Flags a process spawned by a non-admin user that requests admin-level
-// privileges while running PowerShell.
-rule PrivilegeEscalation {
-  when event.type == "process_start"
-    and event.requested_privilege == "admin"
-    and user.is_admin == false
-    and event.process contains "powershell"
-  within 5m
+// Shuts off the main water valve if a leak is detected and nobody has
+// acknowledged it within a few minutes.
+rule LeakPrevention {
+  when sensor.type == "water"
+    and sensor.leak_detected == true
+    and home.alert_acknowledged == false
+  within 3m
   severity: critical
-  tags: "privilege-escalation", "endpoint"
-  description: "Non-admin user's PowerShell process requested admin privileges"
+  tags: "safety", "water-damage"
+  description: "Shut off the main water valve if a leak is detected and nobody has acknowledged it"
 }
 ```
 
@@ -104,4 +103,4 @@ rule PrivilegeEscalation {
 - The interpreter and the three code generators all walk the *same* AST
   produced by the parser — none of them re-parses or re-derives it — which
   is what guarantees a rule can't silently mean something different in
-  Splunk than it does in Elastic.
+  Node-RED than it does in Home Assistant.

@@ -1,6 +1,6 @@
 /*
- * ShieldQL engine: lexer, parser, interpreter, and multi-target code generators.
- * Zero dependencies. Works in the browser (window.ShieldQL) and in Node (module.exports).
+ * PulseQL engine: lexer, parser, interpreter, and multi-target code generators.
+ * Zero dependencies. Works in the browser (window.PulseQL) and in Node (module.exports).
  */
 (function (root) {
   "use strict";
@@ -322,8 +322,8 @@
   // ---------------------------------------------------------------------
 
   function fieldRef(parts) {
-    // event.foo -> foo ; user.foo -> user.foo (cross-context lookup field)
-    if (parts[0] === "event") return parts.slice(1).join(".");
+    // sensor.foo -> foo ; home.foo -> home.foo (cross-context lookup field)
+    if (parts[0] === "sensor") return parts.slice(1).join(".");
     return parts.join(".");
   }
 
@@ -337,123 +337,151 @@
     return String(lit.value);
   }
 
-  // ---- Splunk SPL ----
+  // ---- shared JS-like boolean expression (Node-RED function nodes and IFTTT
+  // Filter Code both really do execute arbitrary JavaScript) ----
 
-  function toSplunkClause(node, notes) {
-    if (node.type === "Logical") {
-      const l = toSplunkClause(node.left, notes);
-      const r = toSplunkClause(node.right, notes);
-      return node.op === "and" ? `(${l} AND ${r})` : `(${l} OR ${r})`;
-    }
-    if (node.type === "Unary" && node.op === "not") {
-      return `NOT ${toSplunkClause(node.expr, notes)}`;
-    }
-    if (node.type === "Binary") {
-      if (isFieldVsField(node)) {
-        notes.push(`field-to-field comparison (${fieldRef(node.left.parts)} ${node.op} ${fieldRef(node.right.parts)}) needs an SPL 'eval' clause; see comment below`);
-        return `eval(${fieldRef(node.left.parts)}${node.op === "==" ? "=" : node.op}${fieldRef(node.right.parts)})`;
-      }
-      const field = fieldRef(node.left.parts);
-      const val = node.right.kind === "string" ? `"${node.right.value}"` : literalToString(node.right);
-      const opMap = { "==": "=", "!=": "!=", ">=": ">=", "<=": "<=", ">": ">", "<": "<" };
-      if (node.op === "contains") return `${field}="*${node.right.value}*"`;
-      return `${field}${opMap[node.op]}${val}`;
-    }
-    throw new Error(`unsupported node in Splunk codegen: ${node.type}`);
+  function jsFieldRef(node) {
+    return "msg." + node.parts.join(".");
   }
 
-  function toSplunk(rule) {
+  function jsLiteral(lit) {
+    if (lit.kind === "string") return JSON.stringify(lit.value);
+    return String(lit.value);
+  }
+
+  function toJsExpr(node) {
+    if (node.type === "Logical") {
+      return `(${toJsExpr(node.left)} ${node.op === "and" ? "&&" : "||"} ${toJsExpr(node.right)})`;
+    }
+    if (node.type === "Unary" && node.op === "not") {
+      return `!(${toJsExpr(node.expr)})`;
+    }
+    if (node.type === "Binary") {
+      const l = jsFieldRef(node.left);
+      const r = node.right.type === "Path" ? jsFieldRef(node.right) : jsLiteral(node.right);
+      if (node.op === "contains") return `${l}.includes(${jsLiteral(node.right)})`;
+      const opMap = { "==": "===", "!=": "!==", ">=": ">=", "<=": "<=", ">": ">", "<": "<" };
+      return `${l} ${opMap[node.op]} ${r}`;
+    }
+    throw new Error(`unsupported node in JS codegen: ${node.type}`);
+  }
+
+  function collectSensorFields(node, out) {
+    if (node.type === "Logical") { collectSensorFields(node.left, out); collectSensorFields(node.right, out); return; }
+    if (node.type === "Unary") { collectSensorFields(node.expr, out); return; }
+    if (node.type === "Binary") {
+      if (node.left.type === "Path" && node.left.parts[0] === "sensor") out.push(fieldRef(node.left.parts));
+      if (node.right.type === "Path" && node.right.parts[0] === "sensor") out.push(fieldRef(node.right.parts));
+    }
+  }
+
+  function primaryEntityGuess(node) {
+    const fields = [];
+    collectSensorFields(node, fields);
+    // "type" is just the domain discriminator (e.g. sensor.type == "motion"), not a
+    // meaningful thing to watch — prefer the first more specific field instead.
+    return fields.find((f) => f !== "type") || fields[0] || "unknown_sensor";
+  }
+
+  // ---- Home Assistant automation YAML ----
+
+  function haFieldRef(node, notes) {
+    const dotted = fieldRef(node.parts);
+    notes.push(`'${dotted}' stands in for a real Home Assistant entity/attribute — wire it to an actual entity_id (e.g. states('binary_sensor.motion')) before use`);
+    return dotted;
+  }
+
+  function haLiteral(lit) {
+    if (lit.kind === "string") return `'${lit.value}'`;
+    return String(lit.value);
+  }
+
+  function toHaExpr(node, notes) {
+    if (node.type === "Logical") {
+      return `${toHaExpr(node.left, notes)} ${node.op} ${toHaExpr(node.right, notes)}`;
+    }
+    if (node.type === "Unary" && node.op === "not") {
+      return `not ${toHaExpr(node.expr, notes)}`;
+    }
+    if (node.type === "Binary") {
+      const left = haFieldRef(node.left, notes);
+      const right = node.right.type === "Path" ? haFieldRef(node.right, notes) : haLiteral(node.right);
+      if (node.op === "contains") return `'${node.right.value}' in ${left}`;
+      return `${left} ${node.op} ${right}`;
+    }
+    throw new Error(`unsupported node in Home Assistant codegen: ${node.type}`);
+  }
+
+  function toHomeAssistant(rule) {
     const notes = [];
-    const clause = toSplunkClause(rule.when, notes);
-    let spl = `search ${clause}`;
-    if (rule.within) spl += ` earliest=-${rule.within.raw}`;
-    spl += `\n| eval severity="${rule.severity}"`;
-    if (rule.tags.length) spl += `\n| eval rule_tags="${rule.tags.join(",")}"`;
-    let out = `\`\`\` ${rule.name} — ${rule.description || "no description"} \`\`\`\n${spl}`;
-    if (notes.length) out += `\n\n# NOTE: ${notes.join("; ")}`;
+    const expr = toHaExpr(rule.when, notes);
+    let yaml = `automation:\n`;
+    yaml += `  - alias: "${rule.name}"\n`;
+    yaml += `    description: "${rule.description || ""}"\n`;
+    yaml += `    trigger:\n      - platform: template\n        value_template: "{{ ${expr} }}"\n`;
+    if (rule.within) yaml += `        for: "${rule.within.raw}"\n`;
+    yaml += `    action:\n      - service: notify.notify\n        data:\n          message: "${rule.name} triggered (priority: ${rule.severity})"\n`;
+    yaml += `    mode: single\n`;
+    let out = yaml;
+    const uniqueNotes = [...new Set(notes)];
+    if (uniqueNotes.length) out += `\n# NOTE: ${uniqueNotes[0]}`;
     return out;
   }
 
-  // ---- Sigma YAML ----
+  // ---- Node-RED flow JSON ----
 
-  function collectFlatAnd(node, out) {
-    // returns true if fully flattened (only AND of simple Binary clauses)
-    if (node.type === "Logical" && node.op === "and") {
-      return collectFlatAnd(node.left, out) && collectFlatAnd(node.right, out);
+  function toNodeRED(rule) {
+    const jsExpr = toJsExpr(rule.when);
+    const entity = primaryEntityGuess(rule.when);
+    const flow = [
+      {
+        id: "trigger_in",
+        type: "server-state-changed",
+        name: `${rule.name}: trigger`,
+        entityid: entity,
+        wires: [["check_fn"]],
+      },
+      {
+        id: "check_fn",
+        type: "function",
+        name: "Check condition",
+        func: `// Evaluates the full rule logic\nif (${jsExpr}) {\n  return msg;\n}\nreturn null; // condition not met, stop here`,
+        wires: [["notify_action"]],
+      },
+      {
+        id: "notify_action",
+        type: "api-call-service",
+        name: `${rule.name}: notify`,
+        service: "notify.notify",
+        data: { message: `${rule.name} triggered (priority: ${rule.severity})` },
+        wires: [[]],
+      },
+    ];
+    let out = JSON.stringify(flow, null, 2);
+    if (rule.within) {
+      out += `\n\n// NOTE: "within ${rule.within.raw}" would need a debounce/trigger-filter node\n// chained before "Check condition" — Node-RED has no single built-in node\n// for an arbitrary time window, so this is left as an integration step.`;
     }
-    if (node.type === "Binary" && !isFieldVsField(node)) {
-      out.push(node);
-      return true;
-    }
-    return false;
+    return out;
   }
 
-  function sigmaModifierFor(op) {
-    return { "==": "", "!=": "|neq", ">=": "|gte", "<=": "|lte", ">": "|gt", "<": "|lt", contains: "|contains" }[op] ?? "";
+  // ---- IFTTT Applet (Filter Code) ----
+
+  function slugify(s) {
+    return s.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
   }
 
-  function toSigma(rule) {
-    const flat = [];
-    const notes = [];
-    const isFlat = collectFlatAnd(rule.when, flat);
-
-    let body;
-    if (isFlat && flat.length) {
-      const lines = flat.map((n) => {
-        const field = fieldRef(n.left.parts) + sigmaModifierFor(n.op);
-        const val = n.right.kind === "string" ? n.right.value : literalToString(n.right);
-        return `    ${field}: ${JSON.stringify(val)}`;
-      });
-      body = `detection:\n  selection:\n${lines.join("\n")}\n  condition: selection`;
-    } else {
-      body = `detection:\n  # NOTE: this rule uses OR/NOT logic or field-to-field comparisons that\n  # do not map cleanly onto Sigma's flat selection format. Expressed here\n  # as a correlation rule needing manual review.\n  selection:\n    keywords: "see ShieldQL source rule '${rule.name}' for full logic"\n  condition: selection`;
-      notes.push("complex boolean logic (OR / NOT / field-to-field) simplified — verify manually");
+  function toIFTTT(rule) {
+    const jsExpr = toJsExpr(rule.when);
+    let out = `Applet: "${rule.name}"\n\n`;
+    out += `IF   Webhooks — "Receive a web request"  (event: ${slugify(rule.name)})\n\n`;
+    out += `FILTER CODE (JavaScript, IFTTT Pro):\n`;
+    out += `  if (${jsExpr}) {\n    // conditions met — let the Applet continue\n  } else {\n    Ifttt.trigger.stop(); // conditions not met — stop here (illustrative; see IFTTT Filter Code docs for the exact call)\n  }\n\n`;
+    out += `THEN  Notifications — "Send a notification"\n`;
+    out += `  Message: "${rule.name} triggered (priority: ${rule.severity})"\n`;
+    if (rule.within) {
+      out += `\n// NOTE: "within ${rule.within.raw}" isn't expressible in Filter Code alone —\n// IFTTT keeps no memory of past runs, so tracking a time window needs an\n// external service (e.g. a small webhook backend) behind the Applet.`;
     }
-
-    let yaml = `title: ${rule.name}\n`;
-    yaml += `status: experimental\n`;
-    yaml += `description: ${JSON.stringify(rule.description || "")}\n`;
-    yaml += `logsource:\n  category: authentication\n`;
-    yaml += body;
-    if (rule.within) yaml += `\n  timeframe: ${rule.within.raw}`;
-    yaml += `\nlevel: ${rule.severity}\n`;
-    if (rule.tags.length) yaml += `tags:\n${rule.tags.map((t) => `  - ${t}`).join("\n")}\n`;
-    if (notes.length) yaml += `\n# NOTE: ${notes.join("; ")}`;
-    return yaml;
-  }
-
-  // ---- Elastic EQL ----
-
-  function toElasticClause(node) {
-    if (node.type === "Logical") {
-      return `${toElasticClause(node.left)} ${node.op} ${toElasticClause(node.right)}`;
-    }
-    if (node.type === "Unary" && node.op === "not") {
-      return `not ${toElasticClause(node.expr)}`;
-    }
-    if (node.type === "Binary") {
-      const elasticField = (parts) => (parts[0] === "event" ? "event." + fieldRef(parts) : fieldRef(parts));
-      const l = elasticField(node.left.parts);
-      if (isFieldVsField(node)) {
-        const r = elasticField(node.right.parts);
-        return `${l} ${node.op} ${r}`;
-      }
-      if (node.op === "contains") {
-        return `stringContains(${l}, "${node.right.value}")`;
-      }
-      const val = node.right.kind === "string" ? `"${node.right.value}"` : literalToString(node.right);
-      return `${l} ${node.op} ${val}`;
-    }
-    throw new Error(`unsupported node in Elastic codegen: ${node.type}`);
-  }
-
-  function toElasticEQL(rule) {
-    const clause = toElasticClause(rule.when);
-    let eql = `// ${rule.name} — ${rule.description || "no description"}\n`;
-    eql += `any where ${clause}`;
-    if (rule.within) eql += `\n// apply over the last ${rule.within.raw} using the Kibana time range picker`;
-    eql += `\n// severity: ${rule.severity}${rule.tags.length ? `, tags: ${rule.tags.join(", ")}` : ""}`;
-    return eql;
+    return out;
   }
 
   // ---------------------------------------------------------------------
@@ -472,22 +500,22 @@
     return program.rules[0];
   }
 
-  const ShieldQL = {
+  const PulseQL = {
     tokenize,
     parse,
     compile,
     compileOne,
     runRule,
-    toSplunk,
-    toSigma,
-    toElasticEQL,
+    toHomeAssistant,
+    toNodeRED,
+    toIFTTT,
     LexError,
     ParseError,
   };
 
   if (typeof module !== "undefined" && module.exports) {
-    module.exports = ShieldQL;
+    module.exports = PulseQL;
   } else {
-    root.ShieldQL = ShieldQL;
+    root.PulseQL = PulseQL;
   }
 })(typeof window !== "undefined" ? window : globalThis);

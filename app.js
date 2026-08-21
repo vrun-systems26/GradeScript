@@ -1,84 +1,81 @@
-/* ShieldQL playground UI logic. No dependencies, no network calls. */
+/* PulseQL playground UI logic. No dependencies, no network calls. */
 (function () {
   "use strict";
 
   // ---- Embedded examples & sample logs (kept in sync with /examples and /sample-logs) ----
 
   const EXAMPLES = {
-    "Credential Stuffing": `// CREDENTIAL STUFFING — someone trying a list of stolen passwords against your login page
-rule CredentialStuffing {
-  when event.type == "login"                       // only look at login attempts
-    and event.failed_attempts >= 5                  // 5+ wrong passwords in a row — try 2 (stricter) or 10 (looser)
-    and event.country != user.home_country          // ...AND it's from a different country than usual
-  within 10m                                        // all of this happening inside a 10-minute window
-  severity: high
-  tags: "credential-stuffing", "brute-force", "authentication"
-  description: "Multiple failed logins followed by access from an unexpected country within 10 minutes"
+    "Motion-Activated Lighting": `// MOTION-ACTIVATED LIGHTING — turn on lights when someone walks into a dark room
+rule MotionActivatedLighting {
+  when sensor.type == "motion"                    // only look at motion sensors
+    and sensor.motion == "detected"                // it actually detected movement
+    and sensor.light_level < 20                    // ...AND the room is dark (0-100 scale) — try 50 (looser) or 10 (stricter)
+    and home.hour >= 18                             // ...AND it's evening or later
+  severity: low
+  tags: "comfort", "lighting"
+  description: "Turn on the lights automatically when someone enters a dark room in the evening"
 }
 `,
-    "Impossible Travel": `// IMPOSSIBLE TRAVEL — same account logging in faster than a human could really travel
-rule ImpossibleTravel {
-  when event.type == "login"                        // only look at login attempts
-    and event.travel_speed_kmh >= 900                // 900 km/h ~ commercial airplane speed — try 2000 (stricter) or 500 (looser)
-    and event.country != event.previous_country       // ...AND the country changed since their last login
-  within 1h
+    "Energy Saver": `// ENERGY SAVER — lower the heat automatically when everyone's away and it's cold
+rule EnergySaver {
+  when sensor.type == "thermostat"                  // only look at thermostat readings
+    and home.occupancy_count == 0                    // nobody is home right now
+    and sensor.outside_temp_f < 40                    // ...AND it's cold outside — try 32 (stricter) or 55 (looser)
+  within 15m                                          // must have been empty for at least 15 minutes
+  severity: low
+  tags: "energy", "cost-saving"
+  description: "Reduce heating automatically once the house has been empty for a while in cold weather"
+}
+`,
+    "Leak Prevention": `// LEAK PREVENTION — shut off the water main before a small drip becomes a flood
+rule LeakPrevention {
+  when sensor.type == "water"                        // only look at water sensors
+    and sensor.leak_detected == true                  // water where there shouldn't be any
+    and home.alert_acknowledged == false               // ...AND nobody has already responded
+  within 3m                                            // give a person 3 minutes to react first
   severity: critical
-  tags: "impossible-travel", "account-takeover"
-  description: "Two logins for the same account imply travel faster than commercial air speed"
+  tags: "safety", "water-damage"
+  description: "Shut off the main water valve if a leak is detected and nobody has acknowledged it"
 }
 `,
-    "Data Exfiltration": `// DATA EXFILTRATION — someone quietly copying a huge pile of company data outward
-rule DataExfiltration {
-  when event.type == "network_transfer"              // only look at file/network transfers
-    and event.bytes_out >= 500000000                 // 500,000,000 bytes ~ 500 MB — try 2000000000 (2GB, stricter) or 100000000 (100MB, looser)
-    and event.destination_internal == false          // ...AND it's leaving the company network
-    and event.is_business_hours == false              // ...AND it's happening outside normal work hours
-  within 30m
-  severity: high
-  tags: "exfiltration", "insider-threat", "network"
-  description: "Large outbound transfer to an external destination outside business hours"
-}
-`,
-    "Privilege Escalation": `// PRIVILEGE ESCALATION — a normal user's program asking for admin (full-control) powers
-rule PrivilegeEscalation {
-  when event.type == "process_start"                 // only look at programs starting up
-    and event.requested_privilege == "admin"         // it's asking for admin-level access
-    and user.is_admin == false                       // ...AND the person running it isn't actually an admin
-    and event.process contains "powershell"           // ...AND it's a PowerShell process — try "cmd.exe" instead
-  within 5m
-  severity: critical
-  tags: "privilege-escalation", "endpoint"
-  description: "Non-admin user's PowerShell process requested admin privileges"
+    "Garden Auto-Watering": `// GARDEN AUTO-WATERING — water the garden only when it actually needs it
+rule GardenAutoWatering {
+  when sensor.type == "soil"                          // only look at soil moisture sensors
+    and sensor.moisture_pct < 30                        // the soil is dry — try 20 (stricter) or 40 (looser)
+    and sensor.rain_last_24h_mm < 5                       // ...AND it hasn't rained much recently
+  severity: low
+  tags: "garden", "water-saving"
+  description: "Water the garden automatically only when the soil is actually dry and it hasn't rained"
 }
 `,
     "✏️ Start your own (blank)": `// YOUR TURN — this is a real, working rule. Edit anything below and watch
-// panels 2 and 3 update live. Every field except "when" is optional.
-rule MyDetection {
-  when event.type == "login"                        // 1. what kind of event are you watching for?
-    and event.failed_attempts >= 5                   // 2. change this number, or add more lines with "and" / "or"
+// the other panels update live. Every field except "when" is optional.
+rule MyAutomation {
+  when sensor.type == "motion"                      // 1. what kind of sensor are you watching?
+    and sensor.light_level < 20                      // 2. change this number, or add more lines with "and" / "or"
   severity: medium                                    // low, medium, high, or critical
   tags: "example"                                      // optional labels, comma-separated
-  description: "Describe what this rule catches, in plain words"
+  description: "Describe what this rule does, in plain words"
 }
 `,
   };
 
   const EXAMPLE_DESCRIPTIONS = {
-    "Credential Stuffing": "Detects logins after repeated failed passwords from an unexpected country — a classic stolen-password attack.",
-    "Impossible Travel": "Detects two logins for the same account that imply travel faster than a commercial flight.",
-    "Data Exfiltration": "Detects unusually large file transfers leaving the network outside business hours.",
-    "Privilege Escalation": "Detects a non-admin user's PowerShell process requesting admin-level access.",
+    "Motion-Activated Lighting": "Turns on the lights automatically when someone walks into a dark room in the evening.",
+    "Energy Saver": "Lowers the heat automatically once the house has been empty for a while in cold weather.",
+    "Leak Prevention": "Shuts off the main water valve if a leak is detected and nobody has responded yet.",
+    "Garden Auto-Watering": "Waters the garden only when the soil is actually dry and it hasn't rained recently.",
     "✏️ Start your own (blank)": "Not an example to study — a real empty starting point. Type your own rule here from scratch.",
   };
 
   const SAMPLE_LOGS = [
-    { label: "Credential stuffing pattern", user: { id: "u-101", home_country: "US", is_admin: false }, event: { type: "login", failed_attempts: 7, country: "RO", travel_speed_kmh: 0, previous_country: "US", requested_privilege: null, process: "", bytes_out: 0, destination_internal: false, is_business_hours: true } },
-    { label: "Normal login", user: { id: "u-102", home_country: "US", is_admin: false }, event: { type: "login", failed_attempts: 0, country: "US", travel_speed_kmh: 0, previous_country: "US", requested_privilege: null, process: "", bytes_out: 0, destination_internal: false, is_business_hours: true } },
-    { label: "Impossible travel", user: { id: "u-103", home_country: "DE", is_admin: false }, event: { type: "login", failed_attempts: 0, country: "JP", travel_speed_kmh: 4200, previous_country: "DE", requested_privilege: null, process: "", bytes_out: 0, destination_internal: false, is_business_hours: true } },
-    { label: "Large internal transfer (benign)", user: { id: "u-104", home_country: "US", is_admin: false }, event: { type: "network_transfer", bytes_out: 900000000, destination_internal: true, is_business_hours: false, failed_attempts: 0, country: "US", previous_country: "US", travel_speed_kmh: 0, requested_privilege: null, process: "" } },
-    { label: "Data exfiltration", user: { id: "u-105", home_country: "US", is_admin: false }, event: { type: "network_transfer", bytes_out: 750000000, destination_internal: false, is_business_hours: false, failed_attempts: 0, country: "US", previous_country: "US", travel_speed_kmh: 0, requested_privilege: null, process: "" } },
-    { label: "PowerShell privilege escalation", user: { id: "u-106", home_country: "US", is_admin: false }, event: { type: "process_start", requested_privilege: "admin", process: "C:\\\\Windows\\\\System32\\\\powershell.exe -enc ...", bytes_out: 0, failed_attempts: 0, country: "US", previous_country: "US", travel_speed_kmh: 0, destination_internal: false, is_business_hours: true } },
-    { label: "Admin using PowerShell (benign)", user: { id: "u-107", home_country: "US", is_admin: true }, event: { type: "process_start", requested_privilege: "admin", process: "powershell.exe -Command Get-Process", bytes_out: 0, failed_attempts: 0, country: "US", previous_country: "US", travel_speed_kmh: 0, destination_internal: false, is_business_hours: true } },
+    { label: "Motion in a dark evening room", home: { occupancy_count: 1, alert_acknowledged: false, hour: 20 }, sensor: { type: "motion", motion: "detected", light_level: 8, outside_temp_f: 55, leak_detected: false, moisture_pct: 50, rain_last_24h_mm: 10 } },
+    { label: "Motion in a bright room (benign)", home: { occupancy_count: 1, alert_acknowledged: false, hour: 15 }, sensor: { type: "motion", motion: "detected", light_level: 80, outside_temp_f: 70, leak_detected: false, moisture_pct: 50, rain_last_24h_mm: 10 } },
+    { label: "Empty house, cold outside", home: { occupancy_count: 0, alert_acknowledged: false, hour: 3 }, sensor: { type: "thermostat", motion: "clear", light_level: 0, outside_temp_f: 28, leak_detected: false, moisture_pct: 50, rain_last_24h_mm: 10 } },
+    { label: "Someone home, cold outside (benign)", home: { occupancy_count: 2, alert_acknowledged: false, hour: 19 }, sensor: { type: "thermostat", motion: "clear", light_level: 0, outside_temp_f: 28, leak_detected: false, moisture_pct: 50, rain_last_24h_mm: 10 } },
+    { label: "Unacknowledged water leak", home: { occupancy_count: 1, alert_acknowledged: false, hour: 9 }, sensor: { type: "water", motion: "clear", light_level: 0, outside_temp_f: 65, leak_detected: true, moisture_pct: 50, rain_last_24h_mm: 10 } },
+    { label: "Leak already acknowledged (benign)", home: { occupancy_count: 1, alert_acknowledged: true, hour: 9 }, sensor: { type: "water", motion: "clear", light_level: 0, outside_temp_f: 65, leak_detected: true, moisture_pct: 50, rain_last_24h_mm: 10 } },
+    { label: "Dry soil, no recent rain", home: { occupancy_count: 1, alert_acknowledged: false, hour: 7 }, sensor: { type: "soil", motion: "clear", light_level: 0, outside_temp_f: 72, leak_detected: false, moisture_pct: 18, rain_last_24h_mm: 0 } },
   ];
 
   // ---- DOM refs ----
@@ -92,8 +89,8 @@ rule MyDetection {
   const exampleDescription = document.getElementById("example-description");
   const tabButtons = document.querySelectorAll(".tab-btn");
 
-  let compiledResults = { splunk: "", sigma: "", eql: "" };
-  let activeTab = "splunk";
+  let compiledResults = { homeassistant: "", nodered: "", ifttt: "" };
+  let activeTab = "homeassistant";
 
   // ---- Syntax highlighting (display-only; independent of the real lexer) ----
 
@@ -143,7 +140,7 @@ rule MyDetection {
 
     let rule;
     try {
-      rule = ShieldQL.compileOne(src);
+      rule = PulseQL.compileOne(src);
     } catch (e) {
       statusBar.textContent = "✗ " + e.message;
       statusBar.className = "err";
@@ -152,14 +149,14 @@ rule MyDetection {
       return;
     }
 
-    const withinNote = rule.within ? ` — note: the live tester below checks one event at a time, it doesn't yet simulate the ${rule.within.raw} window itself` : "";
-    statusBar.textContent = `✓ Parsed rule "${rule.name}" — severity: ${rule.severity}${rule.within ? `, within: ${rule.within.raw}` : ""}${rule.tags.length ? `, tags: ${rule.tags.join(", ")}` : ""}${withinNote}`;
+    const withinNote = rule.within ? ` — note: the live tester below checks one reading at a time, it doesn't yet simulate the ${rule.within.raw} window itself` : "";
+    statusBar.textContent = `✓ Parsed rule "${rule.name}" — priority: ${rule.severity}${rule.within ? `, within: ${rule.within.raw}` : ""}${rule.tags.length ? `, tags: ${rule.tags.join(", ")}` : ""}${withinNote}`;
     statusBar.className = "ok";
 
     try {
-      compiledResults.splunk = ShieldQL.toSplunk(rule);
-      compiledResults.sigma = ShieldQL.toSigma(rule);
-      compiledResults.eql = ShieldQL.toElasticEQL(rule);
+      compiledResults.homeassistant = PulseQL.toHomeAssistant(rule);
+      compiledResults.nodered = PulseQL.toNodeRED(rule);
+      compiledResults.ifttt = PulseQL.toIFTTT(rule);
       output.textContent = compiledResults[activeTab];
     } catch (e) {
       output.textContent = "Codegen error: " + e.message;
@@ -170,7 +167,7 @@ rule MyDetection {
 
   function renderTests(rule) {
     const rows = SAMPLE_LOGS.map((entry) => {
-      const { matched, error } = ShieldQL.runRule(rule, { event: entry.event, user: entry.user });
+      const { matched, error } = PulseQL.runRule(rule, { sensor: entry.sensor, home: entry.home });
       const badgeClass = error ? "error" : matched ? "match" : "nomatch";
       const badgeText = error ? "ERROR" : matched ? "MATCH" : "no match";
       return `<div class="test-row">
@@ -179,8 +176,8 @@ rule MyDetection {
         <span class="test-meta">${error ? escapeHtml(error) : ""}</span>
       </div>`;
     });
-    const matchCount = SAMPLE_LOGS.filter((entry) => ShieldQL.runRule(rule, { event: entry.event, user: entry.user }).matched).length;
-    testResults.innerHTML = `<div class="test-summary">${matchCount} / ${SAMPLE_LOGS.length} sample events matched this rule</div>` + rows.join("");
+    const matchCount = SAMPLE_LOGS.filter((entry) => PulseQL.runRule(rule, { sensor: entry.sensor, home: entry.home }).matched).length;
+    testResults.innerHTML = `<div class="test-summary">${matchCount} / ${SAMPLE_LOGS.length} sample readings matched this rule</div>` + rows.join("");
   }
 
   // ---- Wiring ----
@@ -319,8 +316,8 @@ rule MyDetection {
   });
 
   // Initial load
-  exampleSelect.value = "Credential Stuffing";
-  editor.value = EXAMPLES["Credential Stuffing"];
+  exampleSelect.value = "Motion-Activated Lighting";
+  editor.value = EXAMPLES["Motion-Activated Lighting"];
   updateExampleDescription();
   render();
 })();

@@ -16,4 +16,4 @@ http.createServer((req, res) => {
     res.writeHead(200, { "Content-Type": MIME[ext] || "application/octet-stream" });
     res.end(data);
   });
-}).listen(port, () => console.log(`ShieldQL playground at http://localhost:${port}`));
+}).listen(port, () => console.log(`PulseQL playground at http://localhost:${port}`));

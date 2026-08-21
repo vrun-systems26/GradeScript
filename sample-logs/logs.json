@@ -1,75 +1,37 @@
 [
   {
-    "label": "Credential stuffing — should MATCH",
-    "user": { "id": "u-101", "home_country": "US", "is_admin": false },
-    "event": {
-      "type": "login",
-      "failed_attempts": 7,
-      "country": "RO",
-      "travel_speed_kmh": 0,
-      "previous_country": "US"
-    }
+    "label": "Motion in a dark evening room — should MATCH",
+    "home": { "occupancy_count": 1, "alert_acknowledged": false, "hour": 20 },
+    "sensor": { "type": "motion", "motion": "detected", "light_level": 8, "outside_temp_f": 55, "leak_detected": false, "moisture_pct": 50, "rain_last_24h_mm": 10 }
   },
   {
-    "label": "Normal login — should NOT match",
-    "user": { "id": "u-102", "home_country": "US", "is_admin": false },
-    "event": {
-      "type": "login",
-      "failed_attempts": 0,
-      "country": "US",
-      "travel_speed_kmh": 0,
-      "previous_country": "US"
-    }
+    "label": "Motion in a bright room — should NOT match",
+    "home": { "occupancy_count": 1, "alert_acknowledged": false, "hour": 15 },
+    "sensor": { "type": "motion", "motion": "detected", "light_level": 80, "outside_temp_f": 70, "leak_detected": false, "moisture_pct": 50, "rain_last_24h_mm": 10 }
   },
   {
-    "label": "Impossible travel — should MATCH",
-    "user": { "id": "u-103", "home_country": "DE", "is_admin": false },
-    "event": {
-      "type": "login",
-      "failed_attempts": 0,
-      "country": "JP",
-      "travel_speed_kmh": 4200,
-      "previous_country": "DE"
-    }
+    "label": "Empty house, cold outside — should MATCH energy saver",
+    "home": { "occupancy_count": 0, "alert_acknowledged": false, "hour": 3 },
+    "sensor": { "type": "thermostat", "motion": "clear", "light_level": 0, "outside_temp_f": 28, "leak_detected": false, "moisture_pct": 50, "rain_last_24h_mm": 10 }
   },
   {
-    "label": "Large but internal transfer — should NOT match exfiltration",
-    "user": { "id": "u-104", "home_country": "US", "is_admin": false },
-    "event": {
-      "type": "network_transfer",
-      "bytes_out": 900000000,
-      "destination_internal": true,
-      "is_business_hours": false
-    }
+    "label": "Someone home, cold outside — should NOT match energy saver",
+    "home": { "occupancy_count": 2, "alert_acknowledged": false, "hour": 19 },
+    "sensor": { "type": "thermostat", "motion": "clear", "light_level": 0, "outside_temp_f": 28, "leak_detected": false, "moisture_pct": 50, "rain_last_24h_mm": 10 }
   },
   {
-    "label": "Data exfiltration — should MATCH",
-    "user": { "id": "u-105", "home_country": "US", "is_admin": false },
-    "event": {
-      "type": "network_transfer",
-      "bytes_out": 750000000,
-      "destination_internal": false,
-      "is_business_hours": false
-    }
+    "label": "Unacknowledged leak — should MATCH leak prevention",
+    "home": { "occupancy_count": 1, "alert_acknowledged": false, "hour": 9 },
+    "sensor": { "type": "water", "motion": "clear", "light_level": 0, "outside_temp_f": 65, "leak_detected": true, "moisture_pct": 50, "rain_last_24h_mm": 10 }
   },
   {
-    "label": "Privilege escalation via PowerShell — should MATCH",
-    "user": { "id": "u-106", "home_country": "US", "is_admin": false },
-    "event": {
-      "type": "process_start",
-      "requested_privilege": "admin",
-      "process": "C:\\Windows\\System32\\powershell.exe -enc ...",
-      "bytes_out": 0
-    }
+    "label": "Leak already acknowledged — should NOT match leak prevention",
+    "home": { "occupancy_count": 1, "alert_acknowledged": true, "hour": 9 },
+    "sensor": { "type": "water", "motion": "clear", "light_level": 0, "outside_temp_f": 65, "leak_detected": true, "moisture_pct": 50, "rain_last_24h_mm": 10 }
   },
   {
-    "label": "Admin using PowerShell — should NOT match",
-    "user": { "id": "u-107", "home_country": "US", "is_admin": true },
-    "event": {
-      "type": "process_start",
-      "requested_privilege": "admin",
-      "process": "powershell.exe -Command Get-Process",
-      "bytes_out": 0
-    }
+    "label": "Dry soil, no recent rain — should MATCH garden watering",
+    "home": { "occupancy_count": 1, "alert_acknowledged": false, "hour": 7 },
+    "sensor": { "type": "soil", "motion": "clear", "light_level": 0, "outside_temp_f": 72, "leak_detected": false, "moisture_pct": 18, "rain_last_24h_mm": 0 }
   }
 ]

@@ -1,0 +1,9 @@
+// GARDEN AUTO-WATERING — water the garden only when it actually needs it
+rule GardenAutoWatering {
+  when sensor.type == "soil"                          // only look at soil moisture sensors
+    and sensor.moisture_pct < 30                        // the soil is dry — try 20 (stricter) or 40 (looser)
+    and sensor.rain_last_24h_mm < 5                       // ...AND it hasn't rained much recently
+  severity: low
+  tags: "garden", "water-saving"
+  description: "Water the garden automatically only when the soil is actually dry and it hasn't rained"
+}

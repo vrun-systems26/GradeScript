@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const ShieldQL = require("./engine.js");
+const PulseQL = require("./engine.js");
 
 const exampleFiles = fs.readdirSync(path.join(__dirname, "examples")).filter((f) => f.endsWith(".shieldql"));
 const logs = JSON.parse(fs.readFileSync(path.join(__dirname, "sample-logs/logs.json"), "utf8"));
@@ -12,7 +12,7 @@ for (const file of exampleFiles) {
   console.log(`\n=== ${file} ===`);
   let rule;
   try {
-    rule = ShieldQL.compileOne(src);
+    rule = PulseQL.compileOne(src);
     console.log(`parsed OK: rule ${rule.name}, severity=${rule.severity}, within=${rule.within ? rule.within.raw : "none"}`);
   } catch (e) {
     console.log(`PARSE FAILED: ${e.message}`);
@@ -21,23 +21,23 @@ for (const file of exampleFiles) {
   }
 
   try {
-    console.log("--- Splunk SPL ---");
-    console.log(ShieldQL.toSplunk(rule));
-  } catch (e) { console.log("SPLUNK CODEGEN FAILED:", e.message); failures++; }
+    console.log("--- Home Assistant YAML ---");
+    console.log(PulseQL.toHomeAssistant(rule));
+  } catch (e) { console.log("HOME ASSISTANT CODEGEN FAILED:", e.message); failures++; }
 
   try {
-    console.log("--- Sigma YAML ---");
-    console.log(ShieldQL.toSigma(rule));
-  } catch (e) { console.log("SIGMA CODEGEN FAILED:", e.message); failures++; }
+    console.log("--- Node-RED flow JSON ---");
+    console.log(PulseQL.toNodeRED(rule));
+  } catch (e) { console.log("NODE-RED CODEGEN FAILED:", e.message); failures++; }
 
   try {
-    console.log("--- Elastic EQL ---");
-    console.log(ShieldQL.toElasticEQL(rule));
-  } catch (e) { console.log("ELASTIC CODEGEN FAILED:", e.message); failures++; }
+    console.log("--- IFTTT Applet ---");
+    console.log(PulseQL.toIFTTT(rule));
+  } catch (e) { console.log("IFTTT CODEGEN FAILED:", e.message); failures++; }
 
-  console.log("--- Interpreter against sample logs ---");
+  console.log("--- Interpreter against sample sensor readings ---");
   for (const entry of logs) {
-    const { matched, error } = ShieldQL.runRule(rule, { event: entry.event, user: entry.user });
+    const { matched, error } = PulseQL.runRule(rule, { sensor: entry.sensor, home: entry.home });
     console.log(`${matched ? "MATCH  " : "no-match"} | ${entry.label}${error ? " | ERROR: " + error : ""}`);
   }
 }

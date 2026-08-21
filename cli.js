@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 const fs = require("fs");
-const ShieldQL = require("./engine.js");
+const PulseQL = require("./engine.js");
 
 function usage() {
-  console.log(`ShieldQL CLI
+  console.log(`PulseQL CLI
 
 Usage:
-  node cli.js compile <file.shieldql>              Show all three compiled targets
-  node cli.js compile <file.shieldql> --target=X    X = splunk | sigma | eql
-  node cli.js test <file.shieldql> <logs.json>      Run the rule's interpreter against sample events
+  node cli.js compile <file.shieldql>               Show all three compiled targets
+  node cli.js compile <file.shieldql> --target=X     X = homeassistant | nodered | ifttt
+  node cli.js test <file.shieldql> <logs.json>       Run the rule's interpreter against sample events
 `);
 }
 
@@ -22,12 +22,12 @@ function cmdCompile(args) {
   const targetArg = args.find((a) => a.startsWith("--target="));
   const target = targetArg ? targetArg.split("=")[1] : null;
 
-  const rule = ShieldQL.compileOne(readSource(file));
+  const rule = PulseQL.compileOne(readSource(file));
 
   const targets = {
-    splunk: () => ShieldQL.toSplunk(rule),
-    sigma: () => ShieldQL.toSigma(rule),
-    eql: () => ShieldQL.toElasticEQL(rule),
+    homeassistant: () => PulseQL.toHomeAssistant(rule),
+    nodered: () => PulseQL.toNodeRED(rule),
+    ifttt: () => PulseQL.toIFTTT(rule),
   };
 
   if (target) {
@@ -45,14 +45,14 @@ function cmdCompile(args) {
 function cmdTest(args) {
   const [ruleFile, logsFile] = args;
   if (!ruleFile || !logsFile) return usage();
-  const rule = ShieldQL.compileOne(readSource(ruleFile));
+  const rule = PulseQL.compileOne(readSource(ruleFile));
   const logs = JSON.parse(fs.readFileSync(logsFile, "utf8"));
 
   let matches = 0;
   for (const entry of logs) {
-    const { matched, error } = ShieldQL.runRule(rule, { event: entry.event, user: entry.user || {} });
+    const { matched, error } = PulseQL.runRule(rule, { sensor: entry.sensor, home: entry.home || {} });
     if (matched) matches++;
-    console.log(`${matched ? "MATCH   " : "no-match"} | ${entry.label || JSON.stringify(entry.event)}${error ? " | ERROR: " + error : ""}`);
+    console.log(`${matched ? "MATCH   " : "no-match"} | ${entry.label || JSON.stringify(entry.sensor)}${error ? " | ERROR: " + error : ""}`);
   }
   console.log(`\n${matches} / ${logs.length} events matched rule '${rule.name}'`);
 }
