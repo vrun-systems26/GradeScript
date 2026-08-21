@@ -626,7 +626,17 @@ class SpanishI {
 
   function updateExampleDescription() {
     const desc = EXAMPLE_DESCRIPTIONS[exampleSelect.value] || "";
-    exampleDescription.innerHTML = `<strong>${escapeHtml(exampleSelect.value)}</strong> — ${escapeHtml(desc)}`;
+    const displayName = tableState.className || exampleSelect.value;
+    exampleDescription.innerHTML = `<strong>${escapeHtml(displayName)}</strong> — ${escapeHtml(desc)}`;
+  }
+
+  // Keeps the dropdown option's visible text in sync with a renamed class
+  // — the option's underlying value stays the stable slot key (e.g.
+  // "Algebra II"), only the label the user sees changes (e.g. to "Math").
+  function updateDropdownOptionLabel() {
+    if (!DEFAULT_DROPDOWN_NAMES.includes(currentSlotKey)) return;
+    const opt = Array.from(exampleSelect.options).find((o) => o.value === currentSlotKey);
+    if (opt) opt.textContent = tableState.className || currentSlotKey;
   }
 
   function loadExample(name) {
@@ -663,6 +673,8 @@ class SpanishI {
   // localStorage so it survives closing the tab.
   function registerLiveState() {
     liveClassStates[currentSlotKey] = tableState;
+    updateDropdownOptionLabel();
+    updateExampleDescription();
     saveToStorage();
   }
 

@@ -140,8 +140,10 @@
         <section>
           <h3>Quick glossary</h3>
           <dl>
-            <dt>Category</dt><dd>A graded bucket, like "Homework" or "Tests," with a percentage weight toward the final grade.</dd>
+            <dt>Category</dt><dd>A graded bucket, like "Homework" or "Tests," with a percentage weight toward the final grade — all categories should add up to 100%.</dd>
             <dt>Weighted grade</dt><dd>A grade where categories count different amounts — a 90% on a category worth 40% contributes more than a 90% on one worth 10%.</dd>
+            <dt>Late cap</dt><dd>An optional ceiling on a late assignment's score (e.g. 70%) instead of a flat zero. Leave blank if a category never needs one.</dd>
+            <dt>Retake cap</dt><dd>An optional ceiling on a retaken assignment's score (e.g. 80%), so redoing it isn't "free" compared to getting it right the first time.</dd>
             <dt>LMS</dt><dd>"Learning Management System" — the software a school uses to track grades, like Canvas or Google Classroom.</dd>
             <dt>DSL</dt><dd>"Domain-Specific Language" — a small language built for one job only (here: describing a grading policy), instead of a general-purpose language like Python.</dd>
             <dt>Compile / transpile</dt><dd>Automatically translating one piece of code into another language without a human rewriting it by hand.</dd>
@@ -170,12 +172,6 @@
             <label for="class-name-input">Class name</label>
             <input type="text" id="class-name-input" />
           </div>
-          <p class="table-help">
-            Give each category a <strong>weight in percent</strong> — how much it counts toward the final grade.
-            All categories together should add up to <strong>100%</strong> (the total below turns green when they do).
-            <strong>Late cap</strong> and <strong>Retake cap</strong> are optional percentages — the highest score a late
-            or retaken assignment can earn instead of a flat zero. Leave them blank if you don't need a cap.
-          </p>
           <div class="policy-table">
             <div class="policy-table-head">
               <span>Category</span>
@@ -233,8 +229,7 @@
   </main>
 
   <footer>
-    Zero install: this whole playground is one static HTML file + engine.js, no build step, no network calls.
-    See <a href="LANGUAGE.md">LANGUAGE.md</a> for the full syntax reference, or <a href="GLOSSARY.md">GLOSSARY.md</a> if a term here is unfamiliar.
+    Zero install, no build step. <a href="LANGUAGE.md">LANGUAGE.md</a> · <a href="GLOSSARY.md">GLOSSARY.md</a>
   </footer>
   </div>
 

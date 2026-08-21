@@ -323,7 +323,7 @@ body {
 /* ---------- Header ---------- */
 
 header {
-  padding: 14px 24px;
+  padding: 9px 24px;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -483,7 +483,7 @@ select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px
 .view-tabs {
   display: flex;
   gap: 6px;
-  padding: 10px 24px 0;
+  padding: 6px 24px 0;
   flex-shrink: 0;
 }
 
@@ -493,7 +493,7 @@ select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px
   border: 1px solid var(--border-soft);
   border-bottom: none;
   border-radius: 10px 10px 0 0;
-  padding: 9px 18px;
+  padding: 6px 16px;
   font-family: var(--font-sans);
   font-size: 13px;
   font-weight: 600;
@@ -522,9 +522,9 @@ main { flex: 1; min-height: 0; padding: 0 14px 14px; overflow: hidden; }
 .view { display: none; height: 100%; min-height: 0; }
 .view.active { display: grid; }
 
-#view-build.active { grid-template-columns: 1fr 1fr; gap: 14px; }
-#view-translate.active { grid-template-columns: 1fr; }
-#view-dashboard.active { grid-template-columns: 1fr; }
+#view-build.active { grid-template-columns: 1fr 1fr; grid-template-rows: minmax(0, 1fr); gap: 14px; }
+#view-translate.active { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr); }
+#view-dashboard.active { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr); }
 
 .pane-full { height: 100%; }
 
@@ -771,26 +771,26 @@ main { flex: 1; min-height: 0; padding: 0 14px 14px; overflow: hidden; }
 
 /* ---------- Grade results panel ---------- */
 
-#grade-results { flex: 1; overflow: auto; padding: 14px 18px; }
+#grade-results { flex: 1; overflow: auto; padding: 10px 18px; }
 
 .grade-hero {
   display: flex;
   align-items: baseline;
   gap: 14px;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 .grade-hero-number {
   font-family: var(--font-display);
-  font-size: 40px;
+  font-size: 32px;
   font-weight: 600;
   color: var(--text);
   letter-spacing: -1px;
 }
 .grade-hero-letter {
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
-  padding: 4px 12px;
+  padding: 3px 11px;
   border-radius: 999px;
   letter-spacing: 0.3px;
 }
@@ -802,30 +802,30 @@ main { flex: 1; min-height: 0; padding: 0 14px 14px; overflow: hidden; }
 .grade-letter-n { color: var(--text-faint); background: var(--panel-alt); }
 
 .grade-caption {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-faint);
   font-style: italic;
-  margin-bottom: 12px;
-  line-height: 1.4;
+  margin-bottom: 8px;
+  line-height: 1.35;
 }
 
 .grade-range {
   display: flex;
   gap: 18px;
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--text-dim);
-  margin-bottom: 14px;
-  padding-bottom: 12px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
   border-bottom: 1px solid var(--border-soft);
 }
 .grade-range strong { color: var(--text); font-weight: 700; }
 
-.grade-breakdown { margin-bottom: 16px; }
+.grade-breakdown { margin-bottom: 10px; }
 .grade-row {
   display: grid;
   grid-template-columns: 1fr 60px 90px;
   gap: 8px;
-  padding: 5px 0;
+  padding: 3px 0;
   font-size: 13px;
   border-bottom: 1px solid var(--border-soft);
 }
@@ -861,14 +861,14 @@ main { flex: 1; min-height: 0; padding: 0 14px 14px; overflow: hidden; }
   background: var(--accent-soft);
   border: 1px solid var(--accent);
   border-radius: var(--radius);
-  padding: 12px 14px;
+  padding: 10px 12px;
 }
 .grade-solver-title {
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 .solver-controls {
   display: flex;
@@ -877,7 +877,7 @@ main { flex: 1; min-height: 0; padding: 0 14px 14px; overflow: hidden; }
   flex-wrap: wrap;
   font-size: 13px;
   color: var(--text-dim);
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 .solver-controls input[type="number"] {
   width: 64px;
@@ -906,39 +906,39 @@ main { flex: 1; min-height: 0; padding: 0 14px 14px; overflow: hidden; }
 
 /* ---------- GPA Dashboard ---------- */
 
-#dashboard-wrap { flex: 1; overflow: auto; padding: 24px; max-width: 720px; margin: 0 auto; width: 100%; }
+#dashboard-wrap { flex: 1; overflow: auto; padding: 16px 24px; max-width: 720px; margin: 0 auto; width: 100%; }
 
 .dash-hero {
   display: flex;
   align-items: center;
-  gap: 20px;
-  padding: 20px;
+  gap: 16px;
+  padding: 12px 16px;
   background: var(--accent-soft);
   border: 1px solid var(--accent);
   border-radius: var(--radius);
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 .dash-hero-number {
   font-family: var(--font-display);
-  font-size: 56px;
+  font-size: 40px;
   font-weight: 600;
   color: var(--accent);
   letter-spacing: -1px;
   line-height: 1;
 }
 .dash-hero-label {
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
   color: var(--text);
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
 .dash-caption {
-  font-size: 12.5px;
+  font-size: 11.5px;
   color: var(--text-faint);
   font-style: italic;
-  line-height: 1.6;
-  margin-bottom: 20px;
+  line-height: 1.5;
+  margin-bottom: 10px;
 }
 
 .dash-table {
@@ -951,7 +951,7 @@ main { flex: 1; min-height: 0; padding: 0 14px 14px; overflow: hidden; }
   grid-template-columns: 1.6fr 0.8fr 0.7fr 0.7fr;
   gap: 10px;
   align-items: center;
-  padding: 12px 16px;
+  padding: 8px 16px;
   border-bottom: 1px solid var(--border-soft);
   background: var(--panel);
 }
@@ -994,8 +994,8 @@ main { flex: 1; min-height: 0; padding: 0 14px 14px; overflow: hidden; }
 /* ---------- Footer ---------- */
 
 footer {
-  padding: 8px 24px;
-  font-size: 11.5px;
+  padding: 5px 24px;
+  font-size: 11px;
   color: var(--text-faint);
   border-top: 1px solid var(--border-soft);
   flex-shrink: 0;
