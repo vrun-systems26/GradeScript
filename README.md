@@ -87,7 +87,18 @@ Almost every online grade calculator only ever shows you one class. The
 dashboard tab computes all 6 of the bundled default classes at once —
 Biology, AP English, Algebra II, Intro CS, US History, Spanish I — and
 shows an overall GPA across them, using the same standard 4.0 scale
-(A = 4.0 down to F = 0.0).
+(A = 4.0 down to F = 0.0). Every class lives in a stable "slot," so
+renaming a class updates it in place everywhere (including the dashboard)
+instead of creating a duplicate — only building a genuinely new class from
+the blank template adds a new row.
+
+## It remembers what you built
+
+Everything you enter — every class, every rename, every average — is
+saved to the browser's local storage as you go, and restored automatically
+the next time you open the page. There's no account, no server, and
+nothing leaves your browser; it's just `localStorage`, the same mechanism
+any web app uses to remember your state between visits.
 
 ## Language reference
 

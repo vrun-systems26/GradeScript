@@ -120,17 +120,12 @@ class SpanishI {
 
   const DEFAULT_DROPDOWN_NAMES = ["Biology", "AP English", "Algebra II", "Intro CS", "US History", "Spanish I"];
 
-  // Dropdown labels ("AP English") don't always match the internal class
-  // identifier inside the source ("APEnglish", no space — identifiers can't
-  // contain spaces). Build a reverse lookup once at startup so live state
-  // and sample entries can be found by whichever name we have on hand.
-  const CLASSNAME_TO_DROPDOWN = {};
-  DEFAULT_DROPDOWN_NAMES.forEach((dropdownName) => {
-    try {
-      CLASSNAME_TO_DROPDOWN[GradeScript.compileOne(EXAMPLES[dropdownName]).name] = dropdownName;
-    } catch (e) { /* ignore — a bad default would already fail the test suite */ }
-  });
-  const DASHBOARD_CLASSNAMES = Object.keys(CLASSNAME_TO_DROPDOWN);
+  // Every class lives in a "slot," identified by a stable key that never
+  // changes even if you rename the class inside it. For the 6 built-in
+  // presets, the slot key is just the dropdown name. This is what lets
+  // renaming a class update it in place instead of orphaning the original
+  // and creating a duplicate.
+  const STORAGE_KEY = "gradescript_state_v1";
 
   // ---- DOM refs ----
 
@@ -154,14 +149,22 @@ class SpanishI {
   let solverTarget = 90;
   let currentExampleName = null;
 
-  // Every class the user has visited or edited this session, keyed by its
-  // internal class name — this is what makes switching classes (and the
-  // dashboard) reflect live edits instead of reverting to defaults.
+  // The slot identity of whatever's currently loaded — "Biology" for a
+  // preset, or a generated id for a custom class built from the blank
+  // template. Stable across renames; see the note above STORAGE_KEY.
+  let currentSlotKey = null;
+
+  // Every class the user has visited or edited, keyed by slot (not by
+  // class name) — this is what makes switching classes, renaming, and the
+  // dashboard all reflect live edits instead of reverting to defaults or
+  // duplicating entries. Persisted to localStorage so it survives reloads.
   let liveClassStates = {};
 
   // table editor state
   let tableState = { className: "MyClass", categories: [] };
-  let rowIdCounter = 0;
+  // Seeded from the clock (not 0) so ids generated this session can never
+  // collide with ids restored from a previous session's saved state.
+  let rowIdCounter = Date.now();
 
   // ---- helpers ----
 
@@ -312,14 +315,10 @@ class SpanishI {
   }
 
   classNameInput.addEventListener("input", (e) => {
-    const oldName = tableState.className;
+    // Renaming only ever changes tableState.className — it never touches
+    // which "slot" (currentSlotKey) this class is saved under, so renaming
+    // can't orphan or duplicate an entry. See registerLiveState().
     tableState.className = e.target.value;
-    // Only clean up the old key if it still points at THIS same table state
-    // (a real rename) — never touch another class's saved entry just
-    // because we happened to compile a name that collides.
-    if (oldName !== tableState.className && liveClassStates[oldName] === tableState) {
-      delete liveClassStates[oldName];
-    }
     compileAndRender();
   });
 
@@ -533,25 +532,24 @@ class SpanishI {
     let gpaSum = 0;
     let gpaCount = 0;
 
-    // The 6 defaults, plus any additional class name the user has actually
-    // built or renamed into existence this session — a genuinely dynamic
-    // list, not a fixed count.
-    const namesToShow = [...DASHBOARD_CLASSNAMES];
-    Object.keys(liveClassStates).forEach((n) => { if (!namesToShow.includes(n)) namesToShow.push(n); });
+    // The 6 preset slots, plus any custom slot(s) actually created via the
+    // blank template — a genuinely dynamic list, not a fixed count. A
+    // rename never adds a slot; only building a new class from blank does.
+    const slotsToShow = [...DEFAULT_DROPDOWN_NAMES];
+    Object.keys(liveClassStates).forEach((k) => { if (!slotsToShow.includes(k)) slotsToShow.push(k); });
 
-    for (const name of namesToShow) {
+    for (const slotKey of slotsToShow) {
       let rowHtml;
-      const isCurrentlyActive = name === tableState.className;
-      const hasLiveState = liveClassStates.hasOwnProperty(name);
+      const isCurrentlyActive = slotKey === currentSlotKey;
+      const hasLiveState = liveClassStates.hasOwnProperty(slotKey);
       try {
         let cls, entries;
         if (hasLiveState) {
-          cls = GradeScript.compileOne(generateSource(liveClassStates[name]));
-          entries = tableStateToEntries(liveClassStates[name]);
+          cls = GradeScript.compileOne(generateSource(liveClassStates[slotKey]));
+          entries = tableStateToEntries(liveClassStates[slotKey]);
         } else {
-          const dropdownName = CLASSNAME_TO_DROPDOWN[name];
-          cls = GradeScript.compileOne(EXAMPLES[dropdownName]);
-          entries = SAMPLE_ENTRIES_BY_CLASS[dropdownName] || [];
+          cls = GradeScript.compileOne(EXAMPLES[slotKey]);
+          entries = SAMPLE_ENTRIES_BY_CLASS[slotKey] || [];
         }
         const result = GradeScript.computeGrade(cls, entries);
         const points = result.currentGrade === null ? null : GradeScript.gpaPoints(result.currentLetter);
@@ -564,7 +562,7 @@ class SpanishI {
             <span class="dash-points">${points === null ? "—" : points.toFixed(1)}</span>
           </div>`;
       } catch (e) {
-        rowHtml = `<div class="dash-row"><span class="dash-class">${escapeHtml(name)}</span><span class="test-meta">error: ${escapeHtml(e.message)}</span></div>`;
+        rowHtml = `<div class="dash-row"><span class="dash-class">${escapeHtml(slotKey)}</span><span class="test-meta">error: ${escapeHtml(e.message)}</span></div>`;
       }
       rows.push(rowHtml);
     }
@@ -632,15 +630,24 @@ class SpanishI {
   }
 
   function loadExample(name) {
-    const defaultCls = GradeScript.compileOne(EXAMPLES[name]);
     const isBlankTemplate = name === "✏️ Start your own (blank)";
 
-    // The blank template always starts fresh; a named preset restores your
-    // prior edits to it, if you've visited it before this session.
-    if (!isBlankTemplate && liveClassStates[defaultCls.name]) {
-      tableState = liveClassStates[defaultCls.name];
+    if (isBlankTemplate) {
+      // Each visit to the blank template is a brand new slot — building a
+      // second custom class doesn't overwrite the first one.
+      currentSlotKey = "custom_" + (rowIdCounter++);
+      const defaultCls = GradeScript.compileOne(EXAMPLES[name]);
+      tableState = classDefToTableState(defaultCls, {});
     } else {
-      tableState = classDefToTableState(defaultCls, deriveDefaultAverages(name));
+      // A preset's slot key is its dropdown name, forever — renaming the
+      // class inside it never changes which slot it's saved under.
+      currentSlotKey = name;
+      if (liveClassStates[currentSlotKey]) {
+        tableState = liveClassStates[currentSlotKey];
+      } else {
+        const defaultCls = GradeScript.compileOne(EXAMPLES[name]);
+        tableState = classDefToTableState(defaultCls, deriveDefaultAverages(name));
+      }
     }
 
     currentExampleName = name;
@@ -651,12 +658,25 @@ class SpanishI {
     compileAndRender();
   }
 
-  // Registers (or re-registers) the active table state under its current
-  // class name. Deliberately never deletes another key — that's handled
-  // specifically by the class-name input's own handler, which is the only
-  // place a genuine rename (as opposed to switching classes) happens.
+  // Registers (or re-registers) the active table state under its stable
+  // slot key — never the mutable class name — and persists everything to
+  // localStorage so it survives closing the tab.
   function registerLiveState() {
-    liveClassStates[tableState.className] = tableState;
+    liveClassStates[currentSlotKey] = tableState;
+    saveToStorage();
+  }
+
+  function saveToStorage() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ liveClassStates, currentSlotKey, currentExampleName }));
+    } catch (e) { /* private browsing / quota exceeded — fine to just not persist */ }
+  }
+
+  function loadFromStorage() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
   }
 
   exampleSelect.addEventListener("change", () => loadExample(exampleSelect.value));
@@ -716,7 +736,26 @@ class SpanishI {
   helpOverlay.addEventListener("click", (e) => { if (e.target === helpOverlay) closeHelp(); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeHelp(); });
 
-  // Initial load
-  exampleSelect.value = "Biology";
-  loadExample("Biology");
+  // Initial load — restore whatever you were last working on, if anything
+  // was saved from a previous visit; otherwise start on Biology.
+  (function restoreOrLoadDefault() {
+    const saved = loadFromStorage();
+    if (saved && saved.liveClassStates && saved.currentSlotKey && saved.liveClassStates[saved.currentSlotKey]) {
+      liveClassStates = saved.liveClassStates;
+      currentSlotKey = saved.currentSlotKey;
+      tableState = liveClassStates[currentSlotKey];
+      currentExampleName =
+        saved.currentExampleName && (DEFAULT_DROPDOWN_NAMES.includes(saved.currentExampleName) || saved.currentExampleName === "✏️ Start your own (blank)")
+          ? saved.currentExampleName
+          : (DEFAULT_DROPDOWN_NAMES.includes(currentSlotKey) ? currentSlotKey : "✏️ Start your own (blank)");
+      exampleSelect.value = currentExampleName;
+      solverCategory = null;
+      renderTable();
+      updateExampleDescription();
+      compileAndRender();
+    } else {
+      exampleSelect.value = "Biology";
+      loadExample("Biology");
+    }
+  })();
 })();
