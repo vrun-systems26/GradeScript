@@ -26,7 +26,7 @@ judge questions.
 | Innovation & Originality (25) | The reverse solver ("what do I need on the Final?") and the multi-class GPA Dashboard — both genuinely rare in grade-calculator tools, which are almost universally single-class and forward-only |
 | Technical Implementation (25) | Real hand-written lexer + recursive-descent parser + a real weighted-average/reverse-solve calculator + 3 independent code generators, all in `engine.js`, tested via `test-smoke.js` |
 | Language Design (20) | A deliberately minimal grammar (4 statement kinds, no boolean expressions) purpose-built for one domain — plus a table editor that generates real source, so non-coders never have to touch syntax |
-| Documentation & Presentation (10) | `README.md`, `LANGUAGE.md`, zero-install setup, explicit "known limitations" section (including that the dashboard is a snapshot, not live-linked) |
+| Documentation & Presentation (10) | `README.md`, `LANGUAGE.md`, zero-install setup, explicit "known limitations" section |
 | Real-World Impact (15) | Solves a real, universal problem (re-entering a grading policy every time) with a genuinely useful extra (the reverse solver) that teachers and students would actually want |
 | User Experience (5) | Table editor instead of raw code, animated grade number, reassuring/non-alarming copy and color choices, in-page help panel — no install, no build step |
 
@@ -55,9 +55,10 @@ judge questions.
 1. **The reverse solver assumes the worst case for other ungraded
    categories.** It's a conservative, guaranteed-safe answer, not an
    optimistic "if everything else also improves" projection.
-2. **The GPA Dashboard is a snapshot of the 6 default classes, not
-   live-linked to whatever you're editing on the Build tab.** This is
-   stated in the dashboard's own on-screen caption — not a hidden gap.
+2. **The GPA Dashboard's average per category comes from what you typed
+   in, not a hidden formula.** Whichever class you're actively editing on
+   the Build tab is marked "editing live" on the dashboard and reflects
+   your numbers instantly, including newly-added or renamed classes.
 3. **The LMS Config output's field names are illustrative**, approximating
    real concepts (like Canvas's weighted assignment groups) rather than
    matching one specific school's exact API schema.

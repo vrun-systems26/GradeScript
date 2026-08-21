@@ -64,11 +64,18 @@ classes at once, with an overall GPA).
 
 ## [2:00–2:45] The live grade + the reverse solver (the big moment)
 
-*[Screen: point at the right panel]*
+*[Screen: point at the right panel — the category rows have real number
+inputs, pre-filled with example numbers you can overwrite]*
 
-> "Here's my grade right now: [read the number and letter]. Below it,
-> best case and worst case if everything ungraded goes perfectly or
-> terribly.
+> "Each category has a box where I type my actual average so far — right
+> now Homework's at 80, Tests at 77. That's what drives the number up top:
+> [read the number and letter]. Below it, best case and worst case if
+> everything ungraded goes perfectly or terribly."
+
+*[Action: click into the Final category's box, type a number]*
+
+> "Watch — I type a number into Final, and the grade updates instantly,
+> live, as I type. No submit button.
 >
 > Now here's the part almost no other calculator has: 'What do I need?'"
 
@@ -149,10 +156,10 @@ classes at once, with an overall GPA).
 ## If you get a question you don't expect
 
 - **"Is the GPA Dashboard live-linked to what I edit on the Build tab?"**
-  — Answer honestly: "Not yet — the dashboard shows a snapshot of the 6
-  default classes with their own sample data. That's stated in the
-  dashboard's own caption, not hidden. Linking it to live edits is a
-  natural next step."
+  — "Yes — whichever class you're actively editing is marked 'editing
+  live' on the dashboard and updates instantly. If you add or rename a
+  class into something new, it shows up there too, not just the 6
+  defaults."
 - **"How does the reverse solver handle more than one ungraded
   category?"** — "It solves for whichever one category you pick,
   conservatively assuming any *other* still-ungraded category scores

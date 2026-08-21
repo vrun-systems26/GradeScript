@@ -594,6 +594,14 @@ main { flex: 1; min-height: 0; padding: 0 14px 14px; overflow: hidden; }
 }
 .table-field-row input[type="text"]:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 
+.table-help {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-dim);
+  margin: 0 0 14px;
+}
+.table-help strong { color: var(--text); font-weight: 600; }
+
 .policy-table {
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -834,6 +842,21 @@ main { flex: 1; min-height: 0; padding: 0 14px 14px; overflow: hidden; }
 .grade-row-avg { color: var(--text); font-weight: 600; text-align: right; font-family: var(--font-mono); }
 .grade-row-avg.no-data { color: var(--text-faint); font-weight: 400; font-style: italic; }
 
+.grade-row-avg-input {
+  width: 100%;
+  padding: 5px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--panel);
+  text-align: right;
+}
+.grade-row-avg-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.grade-row-avg-input::placeholder { color: var(--text-faint); font-weight: 400; font-style: italic; }
+
 .grade-solver {
   background: var(--accent-soft);
   border: 1px solid var(--accent);
@@ -941,7 +964,22 @@ main { flex: 1; min-height: 0; padding: 0 14px 14px; overflow: hidden; }
   letter-spacing: 0.4px;
   color: var(--text-faint);
 }
+.dash-row-live { background: var(--accent-soft); }
 .dash-class { font-family: var(--font-display); font-weight: 600; font-size: 15px; color: var(--text); }
+.dash-live-badge {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--accent);
+  background: var(--panel);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  padding: 2px 8px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
 .dash-grade { font-family: var(--font-mono); color: var(--text-dim); }
 .dash-letter {
   font-size: 12px;

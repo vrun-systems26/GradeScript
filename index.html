@@ -130,8 +130,8 @@
           <h3>Navigating it (30 seconds)</h3>
           <ol>
             <li>Pick a class from the <strong>"Load class"</strong> dropdown, top right.</li>
-            <li>You start on the <strong>"📊 Build"</strong> tab: a simple table on the left — category name, weight, late cap, retake cap. No code required. The right side shows your current grade, calculated live against sample assignments.</li>
-            <li>Try it: change a category's weight and watch the grade on the right update instantly, no save or reload. Click <strong>"👀 View the generated code"</strong> if you want to see the real language underneath the table.</li>
+            <li>You start on the <strong>"📊 Build"</strong> tab: a simple table on the left — category name, weight, late cap, retake cap. No code required. On the right, type your current average into each category (starts pre-filled with example numbers you can overwrite).</li>
+            <li>Try it: change a category's weight, or type a new average into a category, and watch the grade update instantly, no save or reload. Click <strong>"👀 View the generated code"</strong> if you want to see the real language underneath the table.</li>
             <li>Scroll to <strong>"🎯 What do I need?"</strong> on the right — pick a category and a target grade, and it tells you the minimum score you need there to hit that target.</li>
             <li>Click <strong>"🔄 See it Translated"</strong> to see the same policy as a syllabus paragraph, a spreadsheet formula, and an LMS config.</li>
             <li>Click <strong>"🎓 GPA Dashboard"</strong> to see all 6 default classes at once, with an overall GPA computed across them — most grade calculators only ever show you one class at a time.</li>
@@ -170,12 +170,18 @@
             <label for="class-name-input">Class name</label>
             <input type="text" id="class-name-input" />
           </div>
+          <p class="table-help">
+            Give each category a <strong>weight in percent</strong> — how much it counts toward the final grade.
+            All categories together should add up to <strong>100%</strong> (the total below turns green when they do).
+            <strong>Late cap</strong> and <strong>Retake cap</strong> are optional percentages — the highest score a late
+            or retaken assignment can earn instead of a flat zero. Leave them blank if you don't need a cap.
+          </p>
           <div class="policy-table">
             <div class="policy-table-head">
               <span>Category</span>
-              <span>Weight</span>
-              <span>Late cap</span>
-              <span>Retake cap</span>
+              <span>Weight (%)</span>
+              <span>Late cap (%)</span>
+              <span>Retake cap (%)</span>
               <span></span>
             </div>
             <div id="policy-rows"></div>

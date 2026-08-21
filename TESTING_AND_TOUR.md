@@ -58,10 +58,12 @@ template) and a **"❓ How to use this"** help button.
   "+ Add category" button and a live weight-total indicator (turns green
   at exactly 100%). Below that, a collapsed **"👀 View the generated
   code"** disclosure showing the real compiled source, read-only.
-- **Right box, "Live results":** a big animated grade number and letter,
-  a reassuring caption, best/worst case, a category breakdown table, and
-  the **"🎯 What do I need?"** reverse-solver widget — pick a category
-  and a target grade, get the minimum score needed.
+- **Right box, "Live results":** a big animated grade number and letter, a
+  reassuring caption, best/worst case, and an editable breakdown table —
+  type your current average directly into each category (starts pre-filled
+  with example numbers, fully overwritable) — plus the **"🎯 What do I
+  need?"** reverse-solver widget: pick a category and a target grade, get
+  the minimum score needed.
 
 **Tab 2 — "🔄 See it Translated" — one full-width box**
 - Three pill buttons: **Syllabus**, **Spreadsheet**, **LMS Config**.

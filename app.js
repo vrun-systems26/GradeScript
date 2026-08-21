@@ -118,7 +118,19 @@ class SpanishI {
     "✏️ Start your own (blank)": [],
   };
 
-  const DASHBOARD_CLASSES = ["Biology", "AP English", "Algebra II", "Intro CS", "US History", "Spanish I"];
+  const DEFAULT_DROPDOWN_NAMES = ["Biology", "AP English", "Algebra II", "Intro CS", "US History", "Spanish I"];
+
+  // Dropdown labels ("AP English") don't always match the internal class
+  // identifier inside the source ("APEnglish", no space — identifiers can't
+  // contain spaces). Build a reverse lookup once at startup so live state
+  // and sample entries can be found by whichever name we have on hand.
+  const CLASSNAME_TO_DROPDOWN = {};
+  DEFAULT_DROPDOWN_NAMES.forEach((dropdownName) => {
+    try {
+      CLASSNAME_TO_DROPDOWN[GradeScript.compileOne(EXAMPLES[dropdownName]).name] = dropdownName;
+    } catch (e) { /* ignore — a bad default would already fail the test suite */ }
+  });
+  const DASHBOARD_CLASSNAMES = Object.keys(CLASSNAME_TO_DROPDOWN);
 
   // ---- DOM refs ----
 
@@ -140,7 +152,12 @@ class SpanishI {
   let currentClassDef = null;
   let solverCategory = null;
   let solverTarget = 90;
-  let currentEntries = [];
+  let currentExampleName = null;
+
+  // Every class the user has visited or edited this session, keyed by its
+  // internal class name — this is what makes switching classes (and the
+  // dashboard) reflect live edits instead of reverting to defaults.
+  let liveClassStates = {};
 
   // table editor state
   let tableState = { className: "MyClass", categories: [] };
@@ -215,7 +232,7 @@ class SpanishI {
     return src;
   }
 
-  function classDefToTableState(cls) {
+  function classDefToTableState(cls, defaultAverages) {
     return {
       className: cls.name,
       categories: cls.categories.map((c) => {
@@ -229,7 +246,30 @@ class SpanishI {
           retakeMax: retake ? retake.max : "",
         };
       }),
+      // one typed-in average per category (e.g. "82.5") — this is what you enter
+      categoryAverages: { ...(defaultAverages || {}) },
     };
+  }
+
+  // Derives a starting "average so far" per category from the bundled sample
+  // entries, using the real engine (so late/retake caps are respected),
+  // purely to give a new user something realistic to see and overwrite.
+  function deriveDefaultAverages(dropdownName) {
+    const entries = SAMPLE_ENTRIES_BY_CLASS[dropdownName];
+    if (!entries || !entries.length) return {};
+    const cls = GradeScript.compileOne(EXAMPLES[dropdownName]);
+    const result = GradeScript.computeGrade(cls, entries);
+    const averages = {};
+    result.breakdown.forEach((b) => { if (b.hasData) averages[b.category] = Math.round(b.average * 10) / 10; });
+    return averages;
+  }
+
+  // Turns the table's category-average inputs into the entry list the
+  // engine actually expects — one synthetic entry per category with data.
+  function tableStateToEntries(state) {
+    return Object.entries(state.categoryAverages || {})
+      .filter(([, v]) => v !== undefined && v !== "" && v !== null && !isNaN(parseFloat(v)))
+      .map(([category, v]) => ({ category, score: parseFloat(v) }));
   }
 
   function renderTable() {
@@ -245,17 +285,18 @@ class SpanishI {
       </div>
     `).join("");
 
-    const total = tableState.categories.reduce((acc, c) => acc + (parseFloat(c.weight) || 0), 0);
-    weightTotalEl.textContent = `Total weight: ${total}%${total === 100 ? " ✓" : ""}`;
-    weightTotalEl.className = "weight-total" + (total === 100 ? " ok" : total > 100 ? " over" : " under");
+    updateWeightTotal();
 
     policyRows.querySelectorAll(".policy-row").forEach((rowEl) => {
       const id = rowEl.dataset.id;
       const cat = tableState.categories.find((c) => c.id === id);
-      rowEl.querySelector(".row-name").addEventListener("input", (e) => { cat.name = e.target.value; onTableChange(false); });
-      rowEl.querySelector(".row-weight").addEventListener("input", (e) => { cat.weight = e.target.value; onTableChange(true); });
-      rowEl.querySelector(".row-late").addEventListener("input", (e) => { cat.lateMax = e.target.value; onTableChange(false); });
-      rowEl.querySelector(".row-retake").addEventListener("input", (e) => { cat.retakeMax = e.target.value; onTableChange(false); });
+      // NOTE: these handlers deliberately never call renderTable() — doing
+      // so on every keystroke would destroy and recreate the input you're
+      // typing in, which is exactly what kicks focus out mid-word.
+      rowEl.querySelector(".row-name").addEventListener("input", (e) => { cat.name = e.target.value; compileAndRender(); });
+      rowEl.querySelector(".row-weight").addEventListener("input", (e) => { cat.weight = e.target.value; updateWeightTotal(); compileAndRender(); });
+      rowEl.querySelector(".row-late").addEventListener("input", (e) => { cat.lateMax = e.target.value; compileAndRender(); });
+      rowEl.querySelector(".row-retake").addEventListener("input", (e) => { cat.retakeMax = e.target.value; compileAndRender(); });
       rowEl.querySelector(".row-delete").addEventListener("click", () => {
         tableState.categories = tableState.categories.filter((c) => c.id !== id);
         renderTable();
@@ -264,17 +305,21 @@ class SpanishI {
     });
   }
 
-  function onTableChange(skipRowRebuild) {
-    if (!skipRowRebuild) renderTable(); else {
-      const total = tableState.categories.reduce((acc, c) => acc + (parseFloat(c.weight) || 0), 0);
-      weightTotalEl.textContent = `Total weight: ${total}%${total === 100 ? " ✓" : ""}`;
-      weightTotalEl.className = "weight-total" + (total === 100 ? " ok" : total > 100 ? " over" : " under");
-    }
-    compileAndRender();
+  function updateWeightTotal() {
+    const total = tableState.categories.reduce((acc, c) => acc + (parseFloat(c.weight) || 0), 0);
+    weightTotalEl.textContent = `Total weight: ${total}%${total === 100 ? " ✓" : ""}`;
+    weightTotalEl.className = "weight-total" + (total === 100 ? " ok" : total > 100 ? " over" : " under");
   }
 
   classNameInput.addEventListener("input", (e) => {
+    const oldName = tableState.className;
     tableState.className = e.target.value;
+    // Only clean up the old key if it still points at THIS same table state
+    // (a real rename) — never touch another class's saved entry just
+    // because we happened to compile a name that collides.
+    if (oldName !== tableState.className && liveClassStates[oldName] === tableState) {
+      delete liveClassStates[oldName];
+    }
     compileAndRender();
   });
 
@@ -303,6 +348,7 @@ class SpanishI {
   // ---- Compile + render ----
 
   function compileAndRender() {
+    registerLiveState();
     const src = generateSource(tableState);
     editor.value = src;
     syncHighlight();
@@ -334,33 +380,132 @@ class SpanishI {
     }
 
     renderGradeResults(cls);
+    renderDashboard();
   }
 
+  // Full rebuild: rebuilds every element in the results panel, including
+  // the average inputs themselves. Only call this after a STRUCTURAL
+  // change (categories added/removed/renamed, or switching class) — never
+  // on a per-keystroke input, or you'll destroy the input the user is
+  // typing in and kick their cursor out mid-word (that's the exact bug
+  // this shape is designed to avoid).
   function renderGradeResults(cls) {
-    const result = GradeScript.computeGrade(cls, currentEntries);
-
     const categoryNames = cls.categories.map((c) => c.name);
     if (!solverCategory || !categoryNames.includes(solverCategory)) {
       solverCategory = categoryNames[categoryNames.length - 1];
     }
 
-    const breakdownRows = result.breakdown.map((b) => `
-      <div class="grade-row">
-        <span class="grade-row-cat">${escapeHtml(b.category)}</span>
-        <span class="grade-row-weight">${b.weight}%</span>
-        <span class="grade-row-avg ${b.hasData ? "" : "no-data"}">${b.hasData ? b.average.toFixed(1) + "%" : "no data yet"}</span>
-      </div>
-    `).join("");
+    const breakdownRows = cls.categories.map((cat) => {
+      const val = tableState.categoryAverages[cat.name];
+      return `
+      <div class="grade-row" data-cat="${escapeHtml(cat.name)}">
+        <span class="grade-row-cat">${escapeHtml(cat.name)}</span>
+        <span class="grade-row-weight">${cat.weight}%</span>
+        <input type="number" class="grade-row-avg-input" min="0" max="100" step="0.1" placeholder="e.g. 85" value="${val === undefined || val === "" ? "" : val}" />
+      </div>`;
+    }).join("");
 
     const options = categoryNames.map((n) => `<option value="${escapeHtml(n)}" ${n === solverCategory ? "selected" : ""}>${escapeHtml(n)}</option>`).join("");
 
+    gradeResults.innerHTML = `
+      <div class="grade-hero">
+        <div class="grade-hero-number" id="grade-current-num">—</div>
+        <div class="grade-hero-letter" id="grade-current-letter">n/a</div>
+      </div>
+      <div class="grade-caption">Type your current average into each category below (e.g. "85" if you're at an 85% so far). Leave a category blank if you haven't started it yet — not a final verdict, just where things stand right now.</div>
+      <div class="grade-range" id="grade-range"></div>
+      <div class="grade-breakdown">
+        <div class="grade-row grade-row-head">
+          <span class="grade-row-cat">Category</span>
+          <span class="grade-row-weight">Weight</span>
+          <span class="grade-row-avg">Your average (%)</span>
+        </div>
+        ${breakdownRows || `<div class="test-meta">No categories yet — add one on the left.</div>`}
+      </div>
+      <div class="grade-solver">
+        <div class="grade-solver-title">🎯 What do I need?</div>
+        <div class="solver-controls">
+          <span>To get</span>
+          <input type="number" id="solver-target" min="0" max="100" value="${solverTarget}" ${categoryNames.length === 0 ? "disabled" : ""} />
+          <span>% on</span>
+          <select id="solver-category" ${categoryNames.length === 0 ? "disabled" : ""}>${options}</select>
+        </div>
+        <div class="solver-result" id="solver-result-text"></div>
+      </div>
+    `;
+
+    // Value-only edits from here on: update state + a lightweight refresh,
+    // never rebuild this panel's own inputs.
+    gradeResults.querySelectorAll(".grade-row-avg-input").forEach((inp) => {
+      inp.addEventListener("input", (e) => {
+        const catName = inp.closest(".grade-row").dataset.cat;
+        const v = e.target.value;
+        tableState.categoryAverages[catName] = v === "" ? undefined : v;
+        registerLiveState();
+        refreshComputedDisplay(currentClassDef);
+        renderDashboard();
+      });
+    });
+
+    const targetInput = document.getElementById("solver-target");
+    const categorySelect = document.getElementById("solver-category");
+    if (targetInput) targetInput.addEventListener("input", (e) => {
+      const v = parseFloat(e.target.value);
+      solverTarget = isNaN(v) ? 0 : v;
+      refreshComputedDisplay(currentClassDef);
+    });
+    if (categorySelect) categorySelect.addEventListener("change", (e) => {
+      solverCategory = e.target.value;
+      refreshComputedDisplay(currentClassDef);
+    });
+
+    refreshComputedDisplay(cls);
+  }
+
+  // Lightweight update: recomputes the grade and repaints only the hero
+  // number/letter, the best/worst range, and the solver's result text —
+  // never touches the average inputs or solver controls, so typing in them
+  // never loses focus.
+  function refreshComputedDisplay(cls) {
+    if (!cls) return;
+    const entries = tableStateToEntries(tableState);
+    const result = GradeScript.computeGrade(cls, entries);
+
+    const numEl = document.getElementById("grade-current-num");
+    const letterEl = document.getElementById("grade-current-letter");
+    if (numEl) {
+      const prevValue = parseFloat(numEl.dataset.raw || "0") || 0;
+      if (result.currentGrade === null) {
+        numEl.textContent = "—";
+        numEl.dataset.raw = "0";
+      } else {
+        animateNumber(numEl, isNaN(prevValue) ? 0 : prevValue, result.currentGrade, "%", 400);
+        numEl.dataset.raw = String(result.currentGrade);
+      }
+    }
+    if (letterEl) {
+      letterEl.textContent = result.currentLetter || "n/a";
+      letterEl.className = "grade-hero-letter grade-letter-" + ((result.currentLetter || "").charAt(0).toLowerCase() || "n");
+    }
+
+    const rangeEl = document.getElementById("grade-range");
+    if (rangeEl) {
+      rangeEl.innerHTML = `
+        <span>Worst case: <strong>${result.worstPossible.toFixed(1)}%</strong> (${result.worstLetter})</span>
+        <span>Best case: <strong>${result.bestPossible.toFixed(1)}%</strong> (${result.bestLetter})</span>
+      `;
+    }
+
+    const solverResultEl = document.getElementById("solver-result-text");
+    if (!solverResultEl) return;
+    const categoryNames = cls.categories.map((c) => c.name);
     let solverHtml = "";
     let solverClass = "";
     if (categoryNames.length === 0) {
       solverHtml = `Add a category above to try this out.`;
     } else {
       try {
-        const solve = GradeScript.solveForTarget(cls, currentEntries, solverCategory, solverTarget);
+        const solve = GradeScript.solveForTarget(cls, entries, solverCategory, solverTarget);
         if (solve.alreadySecured) {
           solverClass = "positive";
           solverHtml = `Good news — that's already locked in. Even a 0% on <strong>${escapeHtml(solverCategory)}</strong> keeps you at or above ${solverTarget}%.`;
@@ -376,56 +521,8 @@ class SpanishI {
         solverHtml = `<span class="test-meta">${escapeHtml(e.message)}</span>`;
       }
     }
-
-    const prevCurrent = gradeResults.querySelector("#grade-current-num");
-    const prevValue = prevCurrent ? parseFloat(prevCurrent.textContent) : null;
-
-    gradeResults.innerHTML = `
-      <div class="grade-hero">
-        <div class="grade-hero-number" id="grade-current-num">${result.currentGrade === null ? "—" : "0.0%"}</div>
-        <div class="grade-hero-letter grade-letter-${(result.currentLetter || "").charAt(0).toLowerCase() || "n"}">${result.currentLetter || "n/a"}</div>
-      </div>
-      <div class="grade-caption">Where things stand right now — not a final verdict. Anything with no data yet is still wide open.</div>
-      <div class="grade-range">
-        <span>Worst case: <strong>${result.worstPossible.toFixed(1)}%</strong> (${result.worstLetter})</span>
-        <span>Best case: <strong>${result.bestPossible.toFixed(1)}%</strong> (${result.bestLetter})</span>
-      </div>
-      <div class="grade-breakdown">
-        <div class="grade-row grade-row-head">
-          <span class="grade-row-cat">Category</span>
-          <span class="grade-row-weight">Weight</span>
-          <span class="grade-row-avg">Average</span>
-        </div>
-        ${breakdownRows || `<div class="test-meta">No categories yet — add one on the left.</div>`}
-      </div>
-      <div class="grade-solver">
-        <div class="grade-solver-title">🎯 What do I need?</div>
-        <div class="solver-controls">
-          <span>To get</span>
-          <input type="number" id="solver-target" min="0" max="100" value="${solverTarget}" ${categoryNames.length === 0 ? "disabled" : ""} />
-          <span>% on</span>
-          <select id="solver-category" ${categoryNames.length === 0 ? "disabled" : ""}>${options}</select>
-        </div>
-        <div class="solver-result ${solverClass}">${solverHtml}</div>
-      </div>
-    `;
-
-    const numEl = document.getElementById("grade-current-num");
-    if (result.currentGrade !== null && numEl) {
-      animateNumber(numEl, prevValue && !isNaN(prevValue) ? prevValue : 0, result.currentGrade, "%", 500);
-    }
-
-    const targetInput = document.getElementById("solver-target");
-    const categorySelect = document.getElementById("solver-category");
-    if (targetInput) targetInput.addEventListener("input", (e) => {
-      const v = parseFloat(e.target.value);
-      solverTarget = isNaN(v) ? 0 : v;
-      renderGradeResults(currentClassDef);
-    });
-    if (categorySelect) categorySelect.addEventListener("change", (e) => {
-      solverCategory = e.target.value;
-      renderGradeResults(currentClassDef);
-    });
+    solverResultEl.className = "solver-result " + solverClass;
+    solverResultEl.innerHTML = solverHtml;
   }
 
   // ---- GPA Dashboard ----
@@ -436,17 +533,32 @@ class SpanishI {
     let gpaSum = 0;
     let gpaCount = 0;
 
-    for (const name of DASHBOARD_CLASSES) {
+    // The 6 defaults, plus any additional class name the user has actually
+    // built or renamed into existence this session — a genuinely dynamic
+    // list, not a fixed count.
+    const namesToShow = [...DASHBOARD_CLASSNAMES];
+    Object.keys(liveClassStates).forEach((n) => { if (!namesToShow.includes(n)) namesToShow.push(n); });
+
+    for (const name of namesToShow) {
       let rowHtml;
+      const isCurrentlyActive = name === tableState.className;
+      const hasLiveState = liveClassStates.hasOwnProperty(name);
       try {
-        const cls = GradeScript.compileOne(EXAMPLES[name]);
-        const entries = SAMPLE_ENTRIES_BY_CLASS[name] || [];
+        let cls, entries;
+        if (hasLiveState) {
+          cls = GradeScript.compileOne(generateSource(liveClassStates[name]));
+          entries = tableStateToEntries(liveClassStates[name]);
+        } else {
+          const dropdownName = CLASSNAME_TO_DROPDOWN[name];
+          cls = GradeScript.compileOne(EXAMPLES[dropdownName]);
+          entries = SAMPLE_ENTRIES_BY_CLASS[dropdownName] || [];
+        }
         const result = GradeScript.computeGrade(cls, entries);
         const points = result.currentGrade === null ? null : GradeScript.gpaPoints(result.currentLetter);
         if (points !== null) { gpaSum += points; gpaCount++; }
         rowHtml = `
-          <div class="dash-row">
-            <span class="dash-class">${escapeHtml(cls.name)}</span>
+          <div class="dash-row${isCurrentlyActive ? " dash-row-live" : ""}">
+            <span class="dash-class">${escapeHtml(cls.name)}${isCurrentlyActive ? ' <span class="dash-live-badge">editing live</span>' : ""}</span>
             <span class="dash-grade">${result.currentGrade === null ? "—" : result.currentGrade.toFixed(1) + "%"}</span>
             <span class="dash-letter grade-letter-${(result.currentLetter || "").charAt(0).toLowerCase() || "n"}">${result.currentLetter || "n/a"}</span>
             <span class="dash-points">${points === null ? "—" : points.toFixed(1)}</span>
@@ -464,7 +576,7 @@ class SpanishI {
         <div class="dash-hero-number">${overallGpa === null ? "—" : overallGpa.toFixed(2)}</div>
         <div class="dash-hero-label">Overall GPA<br/><span class="test-meta">unweighted average across ${gpaCount} class${gpaCount === 1 ? "" : "es"} with data</span></div>
       </div>
-      <div class="dash-caption">Most grade calculators only ever show you one class. This adds them all up — using the same sample data as the Build tab's dropdown, one class at a time. Edit a class on the Build tab and its number here won't move; this dashboard is a snapshot of the 6 defaults, not live-linked (yet).</div>
+      <div class="dash-caption">Most grade calculators only ever show you one class. This adds every class you've built up. Whichever one you're currently on in the Build tab is marked "editing live" below and reflects your changes instantly — the rest keep whatever you last left them at, or their starting sample data if you haven't visited them yet.</div>
       <div class="dash-table">
         <div class="dash-row dash-row-head">
           <span class="dash-class">Class</span>
@@ -520,13 +632,31 @@ class SpanishI {
   }
 
   function loadExample(name) {
-    const cls = GradeScript.compileOne(EXAMPLES[name]);
-    tableState = classDefToTableState(cls);
-    currentEntries = SAMPLE_ENTRIES_BY_CLASS[name] || [];
+    const defaultCls = GradeScript.compileOne(EXAMPLES[name]);
+    const isBlankTemplate = name === "✏️ Start your own (blank)";
+
+    // The blank template always starts fresh; a named preset restores your
+    // prior edits to it, if you've visited it before this session.
+    if (!isBlankTemplate && liveClassStates[defaultCls.name]) {
+      tableState = liveClassStates[defaultCls.name];
+    } else {
+      tableState = classDefToTableState(defaultCls, deriveDefaultAverages(name));
+    }
+
+    currentExampleName = name;
     solverCategory = null;
+    registerLiveState();
     renderTable();
     updateExampleDescription();
     compileAndRender();
+  }
+
+  // Registers (or re-registers) the active table state under its current
+  // class name. Deliberately never deletes another key — that's handled
+  // specifically by the class-name input's own handler, which is the only
+  // place a genuine rename (as opposed to switching classes) happens.
+  function registerLiveState() {
+    liveClassStates[tableState.className] = tableState;
   }
 
   exampleSelect.addEventListener("change", () => loadExample(exampleSelect.value));

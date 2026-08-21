@@ -102,11 +102,9 @@ See [`LANGUAGE.md`](LANGUAGE.md) for the full grammar and metadata fields.
 - **The LMS output's field names are illustrative.** They approximate
   real concepts (Canvas's weighted assignment groups, for example), but
   the exact schema would need to match a specific school's LMS admin API.
-- **The GPA Dashboard is a snapshot, not live-linked to the Build tab.**
-  It always shows the 6 bundled example classes with their own sample
-  data — editing a policy on the Build tab doesn't move the dashboard's
-  numbers (yet). This is stated explicitly in the dashboard's own caption,
-  not hidden.
+- **The GPA Dashboard reflects live edits for whichever class you're
+  currently editing on the Build tab** (marked "editing live"), and shows
+  the other 5 bundled classes with their own built-in sample data.
 
 ## Real-world impact
 
