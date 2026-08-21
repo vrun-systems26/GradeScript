@@ -1,6 +1,7 @@
 /*
- * PulseQL engine: lexer, parser, interpreter, and multi-target code generators.
- * Zero dependencies. Works in the browser (window.PulseQL) and in Node (module.exports).
+ * GradeScript engine: lexer, parser, interpreter (grade calculator), and
+ * multi-target code generators. Zero dependencies. Works in the browser
+ * (window.GradeScript) and in Node (module.exports).
  */
 (function (root) {
   "use strict";
@@ -9,12 +10,7 @@
   // Lexer
   // ---------------------------------------------------------------------
 
-  const KEYWORDS = new Set([
-    "rule", "when", "within", "severity", "tags", "description",
-    "and", "or", "not", "true", "false", "contains"
-  ]);
-
-  const DURATION_UNITS = { ms: 1, s: 1000, m: 60000, h: 3600000, d: 86400000 };
+  const KEYWORDS = new Set(["class", "category", "late", "retake", "max"]);
 
   class LexError extends Error {
     constructor(message, line, col) {
@@ -53,16 +49,11 @@
         advance();
         let value = "";
         while (i < n && peek() !== '"') {
-          if (peek() === "\\" && (peek(1) === '"' || peek(1) === "\\")) {
-            value += peek(1);
-            advance(2);
-          } else {
-            value += peek();
-            advance();
-          }
+          if (peek() === "\\" && (peek(1) === '"' || peek(1) === "\\")) { value += peek(1); advance(2); }
+          else { value += peek(); advance(); }
         }
         if (i >= n) throw new LexError("unterminated string literal", startLine, startCol);
-        advance(); // closing quote
+        advance();
         tokens.push({ type: "STRING", value, line: startLine, col: startCol });
         continue;
       }
@@ -70,19 +61,9 @@
       if (/[0-9]/.test(ch)) {
         let numStr = "";
         while (i < n && /[0-9.]/.test(peek())) { numStr += peek(); advance(); }
-        // duration suffix?
-        let unit = "";
-        if (/[a-zA-Z]/.test(peek() || "")) {
-          let j = i, u = "";
-          while (j < n && /[a-zA-Z]/.test(source[j])) { u += source[j]; j++; }
-          if (DURATION_UNITS.hasOwnProperty(u)) {
-            unit = u;
-            advance(u.length);
-          }
-        }
-        if (unit) {
-          const ms = parseFloat(numStr) * DURATION_UNITS[unit];
-          tokens.push({ type: "DURATION", value: ms, raw: numStr + unit, line: startLine, col: startCol });
+        if (peek() === "%") {
+          advance();
+          tokens.push({ type: "PERCENT", value: parseFloat(numStr), line: startLine, col: startCol });
         } else {
           tokens.push({ type: "NUMBER", value: parseFloat(numStr), line: startLine, col: startCol });
         }
@@ -92,22 +73,12 @@
       if (/[A-Za-z_]/.test(ch)) {
         let ident = "";
         while (i < n && /[A-Za-z0-9_]/.test(peek() || "")) { ident += peek(); advance(); }
-        if (KEYWORDS.has(ident)) {
-          tokens.push({ type: ident.toUpperCase(), value: ident, line: startLine, col: startCol });
-        } else {
-          tokens.push({ type: "IDENT", value: ident, line: startLine, col: startCol });
-        }
+        if (KEYWORDS.has(ident)) tokens.push({ type: ident.toUpperCase(), value: ident, line: startLine, col: startCol });
+        else tokens.push({ type: "IDENT", value: ident, line: startLine, col: startCol });
         continue;
       }
 
-      const two = ch + (peek(1) || "");
-      if (["==", "!=", ">=", "<="].includes(two)) {
-        tokens.push({ type: two, value: two, line: startLine, col: startCol });
-        advance(2);
-        continue;
-      }
-
-      if ("{}(),.:><".includes(ch)) {
+      if ("{}:=".includes(ch)) {
         tokens.push({ type: ch, value: ch, line: startLine, col: startCol });
         advance();
         continue;
@@ -143,114 +114,50 @@
     }
 
     function parseProgram() {
-      const rules = [];
-      while (!at("EOF")) rules.push(parseRule());
-      return { type: "Program", rules };
+      const classes = [];
+      while (!at("EOF")) classes.push(parseClass());
+      return { type: "Program", classes };
     }
 
-    function parseRule() {
-      expect("RULE");
-      const nameTok = expect("IDENT", "expected rule name");
+    function parseClass() {
+      expect("CLASS");
+      const nameTok = expect("IDENT", "expected a class name");
       expect("{");
 
-      let when = null, within = null, severity = "medium", tags = [], description = "";
+      const categories = [];
+      const latePolicies = [];
+      const retakePolicies = [];
 
       while (!at("}")) {
-        if (at("WHEN")) {
+        if (at("CATEGORY")) {
           advance();
-          when = parseOr();
-        } else if (at("WITHIN")) {
+          const catName = expect("IDENT", "expected a category name").value;
+          expect("=");
+          const weight = expect("PERCENT", "expected a percentage like 15%").value;
+          categories.push({ name: catName, weight });
+        } else if (at("LATE")) {
           advance();
-          const d = expect("DURATION", "expected a duration like 10m after 'within'");
-          within = d;
-        } else if (at("SEVERITY")) {
-          advance();
+          const catName = expect("IDENT", "expected a category name after 'late'").value;
           expect(":");
-          const sevTok = at("IDENT") ? advance() : advance();
-          severity = String(sevTok.value).toLowerCase();
-        } else if (at("TAGS")) {
+          expect("MAX");
+          const max = expect("PERCENT", "expected a percentage like 70%").value;
+          latePolicies.push({ category: catName, max });
+        } else if (at("RETAKE")) {
           advance();
+          const catName = expect("IDENT", "expected a category name after 'retake'").value;
           expect(":");
-          tags.push(expect("STRING").value);
-          while (at(",")) { advance(); tags.push(expect("STRING").value); }
-        } else if (at("DESCRIPTION")) {
-          advance();
-          expect(":");
-          description = expect("STRING").value;
+          expect("MAX");
+          const max = expect("PERCENT", "expected a percentage like 80%").value;
+          retakePolicies.push({ category: catName, max });
         } else {
-          throw new ParseError(`unexpected token inside rule body`, peek());
+          throw new ParseError("expected 'category', 'late', or 'retake'", peek());
         }
       }
       expect("}");
 
-      if (!when) throw new ParseError(`rule '${nameTok.value}' is missing a 'when' clause`, nameTok);
+      if (categories.length === 0) throw new ParseError(`class '${nameTok.value}' has no categories`, nameTok);
 
-      return {
-        type: "Rule",
-        name: nameTok.value,
-        when, within, severity, tags, description,
-        line: nameTok.line
-      };
-    }
-
-    function parseOr() {
-      let left = parseAnd();
-      while (at("OR")) {
-        advance();
-        const right = parseAnd();
-        left = { type: "Logical", op: "or", left, right };
-      }
-      return left;
-    }
-
-    function parseAnd() {
-      let left = parseUnary();
-      while (at("AND")) {
-        advance();
-        const right = parseUnary();
-        left = { type: "Logical", op: "and", left, right };
-      }
-      return left;
-    }
-
-    function parseUnary() {
-      if (at("NOT")) {
-        advance();
-        return { type: "Unary", op: "not", expr: parseUnary() };
-      }
-      return parseComparison();
-    }
-
-    function parseComparison() {
-      const left = parsePrimary();
-      const opTypes = ["==", "!=", ">=", "<=", ">", "<", "CONTAINS"];
-      if (opTypes.includes(peek().type)) {
-        const opTok = advance();
-        const op = opTok.type === "CONTAINS" ? "contains" : opTok.type;
-        const right = parsePrimary();
-        return { type: "Binary", op, left, right };
-      }
-      return left;
-    }
-
-    function parsePrimary() {
-      if (at("(")) {
-        advance();
-        const expr = parseOr();
-        expect(")");
-        return expr;
-      }
-      if (at("STRING")) { const t = advance(); return { type: "Literal", kind: "string", value: t.value }; }
-      if (at("NUMBER")) { const t = advance(); return { type: "Literal", kind: "number", value: t.value }; }
-      if (at("DURATION")) { const t = advance(); return { type: "Literal", kind: "duration", value: t.value, raw: t.raw }; }
-      if (at("TRUE")) { advance(); return { type: "Literal", kind: "bool", value: true }; }
-      if (at("FALSE")) { advance(); return { type: "Literal", kind: "bool", value: false }; }
-      if (at("IDENT")) {
-        const parts = [advance().value];
-        while (at(".")) { advance(); parts.push(expect("IDENT").value); }
-        return { type: "Path", parts };
-      }
-      throw new ParseError("expected an expression", peek());
+      return { type: "Class", name: nameTok.value, categories, latePolicies, retakePolicies, line: nameTok.line };
     }
 
     const program = parseProgram();
@@ -259,228 +166,176 @@
   }
 
   // ---------------------------------------------------------------------
-  // Interpreter
+  // Interpreter: the grade calculator
   // ---------------------------------------------------------------------
 
-  function resolvePath(parts, context) {
-    let cur = context;
-    for (const p of parts) {
-      if (cur == null || typeof cur !== "object") return undefined;
-      cur = cur[p];
-    }
-    return cur;
+  // entries: [{ category, name, score, late?, isRetake? }, ...]
+
+  function findPolicy(list, category) {
+    return list.find((p) => p.category === category);
   }
 
-  function evalExpr(node, context) {
-    switch (node.type) {
-      case "Literal":
-        return node.value;
-      case "Path":
-        return resolvePath(node.parts, context);
-      case "Unary":
-        if (node.op === "not") return !truthy(evalExpr(node.expr, context));
-        throw new Error(`unknown unary op ${node.op}`);
-      case "Logical": {
-        const l = evalExpr(node.left, context);
-        if (node.op === "and") return truthy(l) ? truthy(evalExpr(node.right, context)) : false;
-        if (node.op === "or") return truthy(l) ? true : truthy(evalExpr(node.right, context));
-        throw new Error(`unknown logical op ${node.op}`);
-      }
-      case "Binary": {
-        const l = evalExpr(node.left, context);
-        const r = evalExpr(node.right, context);
-        switch (node.op) {
-          case "==": return l === r;
-          case "!=": return l !== r;
-          case ">=": return l >= r;
-          case "<=": return l <= r;
-          case ">": return l > r;
-          case "<": return l < r;
-          case "contains": return typeof l === "string" && typeof r === "string" && l.includes(r);
-          default: throw new Error(`unknown binary op ${node.op}`);
-        }
-      }
-      default:
-        throw new Error(`cannot evaluate node type ${node.type}`);
+  function effectiveScore(entry, classDef) {
+    let score = entry.score;
+    if (entry.late) {
+      const policy = findPolicy(classDef.latePolicies, entry.category);
+      if (policy) score = Math.min(score, policy.max);
     }
+    if (entry.isRetake) {
+      const policy = findPolicy(classDef.retakePolicies, entry.category);
+      if (policy) score = Math.min(score, policy.max);
+    }
+    return score;
   }
 
-  function truthy(v) { return v === true || (v !== false && v !== undefined && v !== null && v !== 0 && v !== ""); }
+  function categoryAverage(classDef, entries, categoryName) {
+    const inCat = entries.filter((e) => e.category === categoryName);
+    if (inCat.length === 0) return null;
+    const sum = inCat.reduce((acc, e) => acc + effectiveScore(e, classDef), 0);
+    return sum / inCat.length;
+  }
 
-  // Evaluate a rule against a single event/user context. Returns {matched, error}
-  function runRule(rule, context) {
-    try {
-      const matched = truthy(evalExpr(rule.when, context));
-      return { matched, error: null };
-    } catch (e) {
-      return { matched: false, error: e.message };
-    }
+  function letterGrade(pct) {
+    if (pct >= 93) return "A";
+    if (pct >= 90) return "A-";
+    if (pct >= 87) return "B+";
+    if (pct >= 83) return "B";
+    if (pct >= 80) return "B-";
+    if (pct >= 77) return "C+";
+    if (pct >= 73) return "C";
+    if (pct >= 70) return "C-";
+    if (pct >= 60) return "D";
+    return "F";
+  }
+
+  const GPA_POINTS = { "A": 4.0, "A-": 3.7, "B+": 3.3, "B": 3.0, "B-": 2.7, "C+": 2.3, "C": 2.0, "C-": 1.7, "D": 1.0, "F": 0.0 };
+
+  function gpaPoints(letter) {
+    return GPA_POINTS.hasOwnProperty(letter) ? GPA_POINTS[letter] : null;
+  }
+
+  function computeGrade(classDef, entries) {
+    const breakdown = classDef.categories.map((cat) => {
+      const avg = categoryAverage(classDef, entries, cat.name);
+      return { category: cat.name, weight: cat.weight, average: avg, hasData: avg !== null };
+    });
+
+    const graded = breakdown.filter((b) => b.hasData);
+    const gradedWeight = graded.reduce((acc, b) => acc + b.weight, 0);
+    const currentGrade = gradedWeight > 0
+      ? graded.reduce((acc, b) => acc + b.average * b.weight, 0) / gradedWeight
+      : null;
+
+    const bestPossible = breakdown.reduce((acc, b) => acc + (b.hasData ? b.average : 100) * b.weight, 0) / 100;
+    const worstPossible = breakdown.reduce((acc, b) => acc + (b.hasData ? b.average : 0) * b.weight, 0) / 100;
+
+    return {
+      breakdown,
+      currentGrade,
+      currentLetter: currentGrade === null ? null : letterGrade(currentGrade),
+      bestPossible,
+      bestLetter: letterGrade(bestPossible),
+      worstPossible,
+      worstLetter: letterGrade(worstPossible),
+    };
+  }
+
+  // "What score do I need on [category] to reach a target grade?" — solves
+  // the weighted-average equation backward for one unknown category,
+  // conservatively assuming any OTHER still-ungraded category scores 0.
+  function solveForTarget(classDef, entries, targetCategoryName, targetPct) {
+    const target = classDef.categories.find((c) => c.name === targetCategoryName);
+    if (!target) throw new Error(`unknown category '${targetCategoryName}'`);
+
+    const totalWeight = classDef.categories.reduce((acc, c) => acc + c.weight, 0);
+    const othersWeightedSum = classDef.categories
+      .filter((c) => c.name !== targetCategoryName)
+      .reduce((acc, c) => {
+        const avg = categoryAverage(classDef, entries, c.name);
+        return acc + (avg === null ? 0 : avg) * c.weight;
+      }, 0);
+
+    const requiredScore = (targetPct * totalWeight - othersWeightedSum) / target.weight;
+
+    return {
+      category: targetCategoryName,
+      requiredScore,
+      achievable: requiredScore <= 100,
+      alreadySecured: requiredScore <= 0,
+    };
   }
 
   // ---------------------------------------------------------------------
-  // Code generation helpers
+  // Code generation
   // ---------------------------------------------------------------------
 
-  function fieldRef(parts) {
-    // sensor.foo -> foo ; home.foo -> home.foo (cross-context lookup field)
-    if (parts[0] === "sensor") return parts.slice(1).join(".");
-    return parts.join(".");
+  function pct(n) {
+    return Number.isInteger(n) ? `${n}%` : `${n.toFixed(1)}%`;
   }
 
-  function isFieldVsField(node) {
-    return node.type === "Binary" && node.left.type === "Path" && node.right.type === "Path";
-  }
+  // ---- Plain-English syllabus paragraph ----
 
-  function literalToString(lit) {
-    if (lit.kind === "string") return lit.value;
-    if (lit.kind === "duration") return lit.raw;
-    return String(lit.value);
-  }
+  function toSyllabus(classDef) {
+    const catList = classDef.categories.map((c) => `${c.name} (${pct(c.weight)})`);
+    const totalWeight = classDef.categories.reduce((a, c) => a + c.weight, 0);
+    let out = `Your grade in ${classDef.name} is calculated from ${classDef.categories.length} categor${classDef.categories.length === 1 ? "y" : "ies"}: `;
+    out += catList.length > 1
+      ? catList.slice(0, -1).join(", ") + ", and " + catList[catList.length - 1] + "."
+      : catList[0] + ".";
 
-  // ---- shared JS-like boolean expression (Node-RED function nodes and IFTTT
-  // Filter Code both really do execute arbitrary JavaScript) ----
-
-  function jsFieldRef(node) {
-    return "msg." + node.parts.join(".");
-  }
-
-  function jsLiteral(lit) {
-    if (lit.kind === "string") return JSON.stringify(lit.value);
-    return String(lit.value);
-  }
-
-  function toJsExpr(node) {
-    if (node.type === "Logical") {
-      return `(${toJsExpr(node.left)} ${node.op === "and" ? "&&" : "||"} ${toJsExpr(node.right)})`;
+    for (const lp of classDef.latePolicies) {
+      out += `\n\nLate ${lp.category} is capped at a maximum score of ${pct(lp.max)}.`;
     }
-    if (node.type === "Unary" && node.op === "not") {
-      return `!(${toJsExpr(node.expr)})`;
+    for (const rp of classDef.retakePolicies) {
+      out += `\n\n${rp.category} may be retaken; retake scores are capped at a maximum of ${pct(rp.max)}.`;
     }
-    if (node.type === "Binary") {
-      const l = jsFieldRef(node.left);
-      const r = node.right.type === "Path" ? jsFieldRef(node.right) : jsLiteral(node.right);
-      if (node.op === "contains") return `${l}.includes(${jsLiteral(node.right)})`;
-      const opMap = { "==": "===", "!=": "!==", ">=": ">=", "<=": "<=", ">": ">", "<": "<" };
-      return `${l} ${opMap[node.op]} ${r}`;
-    }
-    throw new Error(`unsupported node in JS codegen: ${node.type}`);
-  }
-
-  function collectSensorFields(node, out) {
-    if (node.type === "Logical") { collectSensorFields(node.left, out); collectSensorFields(node.right, out); return; }
-    if (node.type === "Unary") { collectSensorFields(node.expr, out); return; }
-    if (node.type === "Binary") {
-      if (node.left.type === "Path" && node.left.parts[0] === "sensor") out.push(fieldRef(node.left.parts));
-      if (node.right.type === "Path" && node.right.parts[0] === "sensor") out.push(fieldRef(node.right.parts));
-    }
-  }
-
-  function primaryEntityGuess(node) {
-    const fields = [];
-    collectSensorFields(node, fields);
-    // "type" is just the domain discriminator (e.g. sensor.type == "motion"), not a
-    // meaningful thing to watch — prefer the first more specific field instead.
-    return fields.find((f) => f !== "type") || fields[0] || "unknown_sensor";
-  }
-
-  // ---- Home Assistant automation YAML ----
-
-  function haFieldRef(node, notes) {
-    const dotted = fieldRef(node.parts);
-    notes.push(`'${dotted}' stands in for a real Home Assistant entity/attribute — wire it to an actual entity_id (e.g. states('binary_sensor.motion')) before use`);
-    return dotted;
-  }
-
-  function haLiteral(lit) {
-    if (lit.kind === "string") return `'${lit.value}'`;
-    return String(lit.value);
-  }
-
-  function toHaExpr(node, notes) {
-    if (node.type === "Logical") {
-      return `${toHaExpr(node.left, notes)} ${node.op} ${toHaExpr(node.right, notes)}`;
-    }
-    if (node.type === "Unary" && node.op === "not") {
-      return `not ${toHaExpr(node.expr, notes)}`;
-    }
-    if (node.type === "Binary") {
-      const left = haFieldRef(node.left, notes);
-      const right = node.right.type === "Path" ? haFieldRef(node.right, notes) : haLiteral(node.right);
-      if (node.op === "contains") return `'${node.right.value}' in ${left}`;
-      return `${left} ${node.op} ${right}`;
-    }
-    throw new Error(`unsupported node in Home Assistant codegen: ${node.type}`);
-  }
-
-  function toHomeAssistant(rule) {
-    const notes = [];
-    const expr = toHaExpr(rule.when, notes);
-    let yaml = `automation:\n`;
-    yaml += `  - alias: "${rule.name}"\n`;
-    yaml += `    description: "${rule.description || ""}"\n`;
-    yaml += `    trigger:\n      - platform: template\n        value_template: "{{ ${expr} }}"\n`;
-    if (rule.within) yaml += `        for: "${rule.within.raw}"\n`;
-    yaml += `    action:\n      - service: notify.notify\n        data:\n          message: "${rule.name} triggered (priority: ${rule.severity})"\n`;
-    yaml += `    mode: single\n`;
-    let out = yaml;
-    const uniqueNotes = [...new Set(notes)];
-    if (uniqueNotes.length) out += `\n# NOTE: ${uniqueNotes[0]}`;
-    return out;
-  }
-
-  // ---- Node-RED flow JSON ----
-
-  function toNodeRED(rule) {
-    const jsExpr = toJsExpr(rule.when);
-    const entity = primaryEntityGuess(rule.when);
-    const flow = [
-      {
-        id: "trigger_in",
-        type: "server-state-changed",
-        name: `${rule.name}: trigger`,
-        entityid: entity,
-        wires: [["check_fn"]],
-      },
-      {
-        id: "check_fn",
-        type: "function",
-        name: "Check condition",
-        func: `// Evaluates the full rule logic\nif (${jsExpr}) {\n  return msg;\n}\nreturn null; // condition not met, stop here`,
-        wires: [["notify_action"]],
-      },
-      {
-        id: "notify_action",
-        type: "api-call-service",
-        name: `${rule.name}: notify`,
-        service: "notify.notify",
-        data: { message: `${rule.name} triggered (priority: ${rule.severity})` },
-        wires: [[]],
-      },
-    ];
-    let out = JSON.stringify(flow, null, 2);
-    if (rule.within) {
-      out += `\n\n// NOTE: "within ${rule.within.raw}" would need a debounce/trigger-filter node\n// chained before "Check condition" — Node-RED has no single built-in node\n// for an arbitrary time window, so this is left as an integration step.`;
+    if (totalWeight !== 100) {
+      out += `\n\n# NOTE: category weights currently sum to ${pct(totalWeight)}, not 100% — double-check the policy.`;
     }
     return out;
   }
 
-  // ---- IFTTT Applet (Filter Code) ----
+  // ---- Spreadsheet formula (Google Sheets / Excel) ----
 
-  function slugify(s) {
-    return s.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
+  function toSpreadsheet(classDef) {
+    const n = classDef.categories.length;
+    const lastRow = 1 + n;
+    let out = `// ${classDef.name} — paste into any cell, with category averages in column B\n`;
+    out += `// and category weights in column C, one row per category (rows 2-${lastRow}):\n\n`;
+    out += `=SUMPRODUCT(B2:B${lastRow}, C2:C${lastRow}) / 100\n\n`;
+    out += `// Suggested layout:\n`;
+    out += `// A1: Category      B1: Average (%)   C1: Weight (%)\n`;
+    classDef.categories.forEach((c, idx) => {
+      out += `// A${idx + 2}: ${c.name}${" ".repeat(Math.max(1, 14 - c.name.length))}B${idx + 2}: <your average>   C${idx + 2}: ${c.weight}\n`;
+    });
+    if (classDef.latePolicies.length || classDef.retakePolicies.length) {
+      out += `\n// NOTE: late/retake caps aren't expressed in this formula — apply the cap\n`;
+      out += `// to the raw score (in column B's source data) before averaging, e.g.\n`;
+      out += `// =MIN(raw_score, ${classDef.latePolicies[0] ? classDef.latePolicies[0].max : classDef.retakePolicies[0].max}) for a capped assignment.`;
+    }
+    return out;
   }
 
-  function toIFTTT(rule) {
-    const jsExpr = toJsExpr(rule.when);
-    let out = `Applet: "${rule.name}"\n\n`;
-    out += `IF   Webhooks — "Receive a web request"  (event: ${slugify(rule.name)})\n\n`;
-    out += `FILTER CODE (JavaScript, IFTTT Pro):\n`;
-    out += `  if (${jsExpr}) {\n    // conditions met — let the Applet continue\n  } else {\n    Ifttt.trigger.stop(); // conditions not met — stop here (illustrative; see IFTTT Filter Code docs for the exact call)\n  }\n\n`;
-    out += `THEN  Notifications — "Send a notification"\n`;
-    out += `  Message: "${rule.name} triggered (priority: ${rule.severity})"\n`;
-    if (rule.within) {
-      out += `\n// NOTE: "within ${rule.within.raw}" isn't expressible in Filter Code alone —\n// IFTTT keeps no memory of past runs, so tracking a time window needs an\n// external service (e.g. a small webhook backend) behind the Applet.`;
-    }
+  // ---- Canvas-style LMS assignment-group JSON ----
+
+  function toLMS(classDef) {
+    const groups = classDef.categories.map((c) => {
+      const group = { name: c.name, group_weight: c.weight };
+      const late = findPolicy(classDef.latePolicies, c.name);
+      const retake = findPolicy(classDef.retakePolicies, c.name);
+      if (late) group.late_policy = { max_percent: late.max };
+      if (retake) group.retake_policy = { allowed: true, max_percent: retake.max };
+      return group;
+    });
+    const config = {
+      course: classDef.name,
+      apply_assignment_group_weights: true,
+      assignment_groups: groups,
+    };
+    let out = JSON.stringify(config, null, 2);
+    out += `\n\n// NOTE: field names here are illustrative — they approximate real LMS\n`;
+    out += `// concepts (Canvas's weighted assignment groups, for example) but the\n`;
+    out += `// exact schema would need to match your specific LMS's admin API.`;
     return out;
   }
 
@@ -490,32 +345,34 @@
 
   function compile(source) {
     const tokens = tokenize(source);
-    const program = parse(tokens);
-    return program;
+    return parse(tokens);
   }
 
   function compileOne(source) {
     const program = compile(source);
-    if (program.rules.length !== 1) throw new Error(`expected exactly one rule, found ${program.rules.length}`);
-    return program.rules[0];
+    if (program.classes.length !== 1) throw new Error(`expected exactly one class, found ${program.classes.length}`);
+    return program.classes[0];
   }
 
-  const PulseQL = {
+  const GradeScript = {
     tokenize,
     parse,
     compile,
     compileOne,
-    runRule,
-    toHomeAssistant,
-    toNodeRED,
-    toIFTTT,
+    computeGrade,
+    solveForTarget,
+    letterGrade,
+    gpaPoints,
+    toSyllabus,
+    toSpreadsheet,
+    toLMS,
     LexError,
     ParseError,
   };
 
   if (typeof module !== "undefined" && module.exports) {
-    module.exports = PulseQL;
+    module.exports = GradeScript;
   } else {
-    root.PulseQL = PulseQL;
+    root.GradeScript = GradeScript;
   }
 })(typeof window !== "undefined" ? window : globalThis);

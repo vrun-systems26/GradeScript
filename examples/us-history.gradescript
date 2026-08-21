@@ -1,0 +1,9 @@
+// US HISTORY — discussion- and essay-based policy
+class USHistory {
+  category Essays = 25%
+  category Quizzes = 20%
+  category Discussion = 15%
+  category Exams = 40%
+
+  late Essays: max 75%
+}

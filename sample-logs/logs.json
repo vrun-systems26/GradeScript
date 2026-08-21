@@ -1,37 +1,9 @@
 [
-  {
-    "label": "Motion in a dark evening room — should MATCH",
-    "home": { "occupancy_count": 1, "alert_acknowledged": false, "hour": 20 },
-    "sensor": { "type": "motion", "motion": "detected", "light_level": 8, "outside_temp_f": 55, "leak_detected": false, "moisture_pct": 50, "rain_last_24h_mm": 10 }
-  },
-  {
-    "label": "Motion in a bright room — should NOT match",
-    "home": { "occupancy_count": 1, "alert_acknowledged": false, "hour": 15 },
-    "sensor": { "type": "motion", "motion": "detected", "light_level": 80, "outside_temp_f": 70, "leak_detected": false, "moisture_pct": 50, "rain_last_24h_mm": 10 }
-  },
-  {
-    "label": "Empty house, cold outside — should MATCH energy saver",
-    "home": { "occupancy_count": 0, "alert_acknowledged": false, "hour": 3 },
-    "sensor": { "type": "thermostat", "motion": "clear", "light_level": 0, "outside_temp_f": 28, "leak_detected": false, "moisture_pct": 50, "rain_last_24h_mm": 10 }
-  },
-  {
-    "label": "Someone home, cold outside — should NOT match energy saver",
-    "home": { "occupancy_count": 2, "alert_acknowledged": false, "hour": 19 },
-    "sensor": { "type": "thermostat", "motion": "clear", "light_level": 0, "outside_temp_f": 28, "leak_detected": false, "moisture_pct": 50, "rain_last_24h_mm": 10 }
-  },
-  {
-    "label": "Unacknowledged leak — should MATCH leak prevention",
-    "home": { "occupancy_count": 1, "alert_acknowledged": false, "hour": 9 },
-    "sensor": { "type": "water", "motion": "clear", "light_level": 0, "outside_temp_f": 65, "leak_detected": true, "moisture_pct": 50, "rain_last_24h_mm": 10 }
-  },
-  {
-    "label": "Leak already acknowledged — should NOT match leak prevention",
-    "home": { "occupancy_count": 1, "alert_acknowledged": true, "hour": 9 },
-    "sensor": { "type": "water", "motion": "clear", "light_level": 0, "outside_temp_f": 65, "leak_detected": true, "moisture_pct": 50, "rain_last_24h_mm": 10 }
-  },
-  {
-    "label": "Dry soil, no recent rain — should MATCH garden watering",
-    "home": { "occupancy_count": 1, "alert_acknowledged": false, "hour": 7 },
-    "sensor": { "type": "soil", "motion": "clear", "light_level": 0, "outside_temp_f": 72, "leak_detected": false, "moisture_pct": 18, "rain_last_24h_mm": 0 }
-  }
+  { "category": "Homework", "name": "HW1: Cell Structure", "score": 95 },
+  { "category": "Homework", "name": "HW2: Genetics", "score": 58, "late": true },
+  { "category": "Homework", "name": "HW3: Ecology", "score": 88 },
+  { "category": "Tests", "name": "Unit Test 1", "score": 74 },
+  { "category": "Tests", "name": "Unit Test 2 (retake)", "score": 85, "isRetake": true },
+  { "category": "Labs", "name": "Lab 1: Osmosis", "score": 91 },
+  { "category": "Labs", "name": "Lab 2: Photosynthesis", "score": 84 }
 ]

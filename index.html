@@ -2,8 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>PulseQL Playground</title>
+<title>GradeScript Playground</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -12,40 +15,41 @@
 
       <section class="landing-slide active" data-slide="1">
         <div class="eyebrow">BUILT FOR SYNTAX SUMMIT</div>
-        <h1 id="landing-title" aria-label="PulseQL">
-          <span class="letter" data-char="P">0</span><span class="letter" data-char="u">1</span><span class="letter" data-char="l">0</span><span class="letter" data-char="s">1</span><span class="letter" data-char="e">0</span><span class="letter accent" data-char="Q">1</span><span class="letter accent" data-char="L">0</span>
+        <h1 id="landing-title" aria-label="GradeScript">
+          <span class="letter">G</span><span class="letter">r</span><span class="letter">a</span><span class="letter">d</span><span class="letter">e</span><span class="letter accent">S</span><span class="letter accent">c</span><span class="letter accent">r</span><span class="letter accent">i</span><span class="letter accent">p</span><span class="letter accent">t</span>
         </h1>
-        <p class="landing-tagline">One rule in. Three smart-home platforms out.</p>
+        <p class="landing-tagline">Write your grading policy once. Get a live calculator for free.</p>
       </section>
 
       <section class="landing-slide" data-slide="2">
         <div class="eyebrow">THE IDEA</div>
         <p class="landing-explain">
-          Every smart-home platform wants your automation written its own way.
-          <strong>PulseQL is a tiny language that lets you write it once</strong> —
-          and generates the rest.
+          Most grade calculators make you re-enter your policy by hand, every time, in a form.
+          <strong>GradeScript is a tiny language that lets you write the policy once</strong> —
+          then it becomes a live calculator, a syllabus paragraph, a spreadsheet formula, and
+          an LMS config, all at once.
         </p>
         <div class="marquee-wrap">
           <div class="marquee-track">
-            <span>LEXER</span><span>PARSER</span><span>AST</span><span>INTERPRETER</span><span>HOME ASSISTANT</span><span>NODE-RED</span><span>IFTTT</span><span>ZERO DEPENDENCIES</span><span>LIVE TESTER</span>
-            <span aria-hidden="true">LEXER</span><span aria-hidden="true">PARSER</span><span aria-hidden="true">AST</span><span aria-hidden="true">INTERPRETER</span><span aria-hidden="true">HOME ASSISTANT</span><span aria-hidden="true">NODE-RED</span><span aria-hidden="true">IFTTT</span><span aria-hidden="true">ZERO DEPENDENCIES</span><span aria-hidden="true">LIVE TESTER</span>
+            <span>LEXER</span><span>PARSER</span><span>AST</span><span>CALCULATOR</span><span>SYLLABUS TEXT</span><span>SPREADSHEET FORMULA</span><span>LMS CONFIG</span><span>ZERO DEPENDENCIES</span><span>REVERSE SOLVER</span>
+            <span aria-hidden="true">LEXER</span><span aria-hidden="true">PARSER</span><span aria-hidden="true">AST</span><span aria-hidden="true">CALCULATOR</span><span aria-hidden="true">SYLLABUS TEXT</span><span aria-hidden="true">SPREADSHEET FORMULA</span><span aria-hidden="true">LMS CONFIG</span><span aria-hidden="true">ZERO DEPENDENCIES</span><span aria-hidden="true">REVERSE SOLVER</span>
           </div>
         </div>
         <div class="landing-compare">
           <div class="landing-compare-col">
-            <span class="landing-compare-label bad">Today, without PulseQL</span>
+            <span class="landing-compare-label bad">A typical grade calculator</span>
             <div class="landing-compare-box">
-              <span>1 automation idea</span>
-              <span class="landing-compare-arrow">↓ written by hand, 3 times</span>
-              <span class="landing-compare-list">Home Assistant automation · Node-RED flow · IFTTT Applet<br/><em>— can silently drift out of sync —</em></span>
+              <span>Re-enter your policy</span>
+              <span class="landing-compare-arrow">↓ every single time</span>
+              <span class="landing-compare-list">One number out<br/><em>— no memory, no reuse —</em></span>
             </div>
           </div>
           <div class="landing-compare-col">
-            <span class="landing-compare-label good">With PulseQL</span>
+            <span class="landing-compare-label good">With GradeScript</span>
             <div class="landing-compare-box good">
-              <span>1 automation idea</span>
-              <span class="landing-compare-arrow">↓ written once</span>
-              <span class="landing-compare-list">→ Home Assistant<br/>→ Node-RED<br/>→ IFTTT<br/><em>— generated, always in sync —</em></span>
+              <span>1 policy, written once</span>
+              <span class="landing-compare-arrow">↓ reused forever</span>
+              <span class="landing-compare-list">→ Live calculator<br/>→ Syllabus text<br/>→ Spreadsheet + LMS config<br/><em>— and a reverse solver —</em></span>
             </div>
           </div>
         </div>
@@ -57,22 +61,22 @@
           <div class="landing-step">
             <span class="landing-step-icon">①</span>
             <div>
-              <strong>Choose an example</strong>
+              <strong>Choose a class</strong>
               <p>Use the dropdown, top right, once you're in.</p>
             </div>
           </div>
           <div class="landing-step">
             <span class="landing-step-icon">②</span>
             <div>
-              <strong>Change one number</strong>
-              <p>Click into the rule and edit any value.</p>
+              <strong>Change a weight</strong>
+              <p>Click into the policy and edit any number.</p>
             </div>
           </div>
           <div class="landing-step">
             <span class="landing-step-icon">③</span>
             <div>
-              <strong>Watch results change</strong>
-              <p>The results re-check themselves instantly.</p>
+              <strong>Watch your grade change</strong>
+              <p>Then try "what do I need on the Final?"</p>
             </div>
           </div>
         </div>
@@ -95,13 +99,13 @@
   <header>
     <div class="brand">
       <div class="brand-top">
-        <span class="logo">PulseQL</span>
+        <span class="logo">GradeScript</span>
         <span class="logo-badge">DSL compiler</span>
       </div>
       <div id="example-description"></div>
     </div>
     <div class="rule-select">
-      <label for="example-select">Load example:</label>
+      <label for="example-select">Load class:</label>
       <select id="example-select"></select>
     </div>
     <button id="help-btn" type="button">❓ How to use this</button>
@@ -116,30 +120,32 @@
       <div class="help-panel-body">
         <section>
           <h3>The problem, in one picture</h3>
-          <p>Today: one automation idea gets hand-written 3 times (Home Assistant,
-          Node-RED, IFTTT) and the copies can drift apart. With PulseQL: you write it
-          <strong>once</strong>, and the 3 versions are generated from that one
-          source, so they can't disagree with each other.</p>
+          <p>Most online grade calculators make you type your whole policy into
+          a form <strong>every time</strong> you use them. With GradeScript, you
+          write the policy <strong>once</strong>, and it becomes a live
+          calculator, a syllabus paragraph, a spreadsheet formula, and an LMS
+          config — all generated from that one source.</p>
         </section>
         <section>
           <h3>Navigating it (30 seconds)</h3>
           <ol>
-            <li>Pick a rule from the <strong>"Load example"</strong> dropdown, top right.</li>
-            <li>You start on the <strong>"✏️ Write &amp; Test"</strong> tab: the rule itself on the left, in plain syntax. The right side runs it live against 7 pretend sensor readings.</li>
-            <li>Try it: change a number in the rule (like <code>&lt; 20</code>) and watch the right side re-check itself instantly, no save or reload.</li>
-            <li>Click the <strong>"🔄 See it Translated"</strong> tab, top of the page, to see that same rule written for 3 real smart-home platforms — the pill buttons at the top switch between them. All three come from the exact same rule, so they can't disagree with each other.</li>
+            <li>Pick a class from the <strong>"Load class"</strong> dropdown, top right.</li>
+            <li>You start on the <strong>"📊 Build"</strong> tab: a simple table on the left — category name, weight, late cap, retake cap. No code required. The right side shows your current grade, calculated live against sample assignments.</li>
+            <li>Try it: change a category's weight and watch the grade on the right update instantly, no save or reload. Click <strong>"👀 View the generated code"</strong> if you want to see the real language underneath the table.</li>
+            <li>Scroll to <strong>"🎯 What do I need?"</strong> on the right — pick a category and a target grade, and it tells you the minimum score you need there to hit that target.</li>
+            <li>Click <strong>"🔄 See it Translated"</strong> to see the same policy as a syllabus paragraph, a spreadsheet formula, and an LMS config.</li>
+            <li>Click <strong>"🎓 GPA Dashboard"</strong> to see all 6 default classes at once, with an overall GPA computed across them — most grade calculators only ever show you one class at a time.</li>
           </ol>
         </section>
         <section>
           <h3>Quick glossary</h3>
           <dl>
-            <dt>Home Assistant</dt><dd>The most popular open-source smart-home platform — you write "automations" in YAML that react to sensors and control devices.</dd>
-            <dt>Node-RED</dt><dd>A visual automation tool where you wire together little boxes ("nodes") instead of writing a linear script — its saved format is JSON.</dd>
-            <dt>IFTTT</dt><dd>"If This Then That" — a mainstream, beginner-friendly automation app most people have heard of, using simple "Applets."</dd>
-            <dt>DSL</dt><dd>"Domain-Specific Language" — a small language built for one job only (here: writing automation rules), instead of a general-purpose language like Python.</dd>
-            <dt>Rule</dt><dd>One "if this happens, do that" statement — the thing you write in the left box on the "Write & Test" tab.</dd>
+            <dt>Category</dt><dd>A graded bucket, like "Homework" or "Tests," with a percentage weight toward the final grade.</dd>
+            <dt>Weighted grade</dt><dd>A grade where categories count different amounts — a 90% on a category worth 40% contributes more than a 90% on one worth 10%.</dd>
+            <dt>LMS</dt><dd>"Learning Management System" — the software a school uses to track grades, like Canvas or Google Classroom.</dd>
+            <dt>DSL</dt><dd>"Domain-Specific Language" — a small language built for one job only (here: describing a grading policy), instead of a general-purpose language like Python.</dd>
             <dt>Compile / transpile</dt><dd>Automatically translating one piece of code into another language without a human rewriting it by hand.</dd>
-            <dt>within (honest note)</dt><dd>Sets a time window on the rule (e.g. <code>within 15m</code>) and gets passed to each target's own time-window mechanism. The live tester below evaluates one reading at a time — it doesn't yet simulate a real multi-reading time window itself.</dd>
+            <dt>Reverse solver</dt><dd>Instead of "here's my grades, what's my average," it works backward: "here's the grade I want, what score do I need?"</dd>
           </dl>
           <p class="help-more">Full write-up: <a href="GLOSSARY.md">GLOSSARY.md</a> · Full syntax: <a href="LANGUAGE.md">LANGUAGE.md</a></p>
         </section>
@@ -148,28 +154,51 @@
   </div>
 
   <div class="view-tabs">
-    <button class="view-tab-btn active" data-view="write-test" type="button">✏️ Write &amp; Test</button>
+    <button class="view-tab-btn active" data-view="build" type="button">📊 Build</button>
     <button class="view-tab-btn" data-view="translate" type="button">🔄 See it Translated</button>
+    <button class="view-tab-btn" data-view="dashboard" type="button">🎓 GPA Dashboard</button>
   </div>
 
   <main>
-    <div id="view-write-test" class="view active">
+    <div id="view-build" class="view active">
       <div class="pane">
         <div class="pane-header">
-          <span class="pane-title"><span class="pane-icon">✏️</span>Write the rule</span>
+          <span class="pane-title"><span class="pane-icon">📊</span>Build the policy</span>
         </div>
-        <div id="editor-wrap">
-          <pre id="highlight" aria-hidden="true"></pre>
-          <textarea id="editor" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+        <div id="table-editor-wrap">
+          <div class="table-field-row">
+            <label for="class-name-input">Class name</label>
+            <input type="text" id="class-name-input" />
+          </div>
+          <div class="policy-table">
+            <div class="policy-table-head">
+              <span>Category</span>
+              <span>Weight</span>
+              <span>Late cap</span>
+              <span>Retake cap</span>
+              <span></span>
+            </div>
+            <div id="policy-rows"></div>
+          </div>
+          <button id="add-category-btn" type="button">+ Add category</button>
+          <div class="weight-total" id="weight-total"></div>
+
+          <details class="code-preview">
+            <summary>👀 View the generated code</summary>
+            <div id="editor-wrap">
+              <pre id="highlight" aria-hidden="true"></pre>
+              <textarea id="editor" spellcheck="false" autocomplete="off" autocapitalize="off" readonly></textarea>
+            </div>
+          </details>
         </div>
         <div id="status-bar" class="ok">Ready.</div>
       </div>
 
       <div class="pane">
         <div class="pane-header">
-          <span class="pane-title"><span class="pane-icon">🧪</span>Live results</span>
+          <span class="pane-title"><span class="pane-icon">🧮</span>Live results</span>
         </div>
-        <div id="test-results"></div>
+        <div id="grade-results"></div>
       </div>
     </div>
 
@@ -178,12 +207,21 @@
         <div class="pane-header">
           <span class="pane-title"><span class="pane-icon">🔄</span>Translated</span>
           <div class="tabs">
-            <button class="tab-btn active" data-target="homeassistant">Home Assistant</button>
-            <button class="tab-btn" data-target="nodered">Node-RED</button>
-            <button class="tab-btn" data-target="ifttt">IFTTT</button>
+            <button class="tab-btn active" data-target="syllabus">Syllabus</button>
+            <button class="tab-btn" data-target="spreadsheet">Spreadsheet</button>
+            <button class="tab-btn" data-target="lms">LMS Config</button>
           </div>
         </div>
         <div id="output-wrap"><pre id="output"></pre></div>
+      </div>
+    </div>
+
+    <div id="view-dashboard" class="view">
+      <div class="pane pane-full">
+        <div class="pane-header">
+          <span class="pane-title"><span class="pane-icon">🎓</span>GPA Dashboard — all your classes at once</span>
+        </div>
+        <div id="dashboard-wrap"></div>
       </div>
     </div>
   </main>

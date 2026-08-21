@@ -1,0 +1,9 @@
+// INTRO TO COMPUTER SCIENCE — project-heavy policy
+class IntroCS {
+  category Projects = 35%
+  category Labs = 20%
+  category Midterm = 20%
+  category Final = 25%
+
+  late Projects: max 75%           // late projects capped at 75
+}

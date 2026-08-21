@@ -1,0 +1,9 @@
+// ALGEBRA II — quiz-heavy policy where quizzes can be retaken
+class AlgebraII {
+  category Homework = 20%
+  category Quizzes = 25%
+  category Tests = 35%
+  category FinalExam = 20%
+
+  retake Quizzes: max 90%          // missed a concept? retake the quiz, capped at 90
+}

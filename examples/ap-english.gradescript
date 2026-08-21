@@ -1,0 +1,9 @@
+// AP ENGLISH — essay-heavy policy with a big final project
+class APEnglish {
+  category Essays = 30%
+  category Participation = 10%
+  category Exams = 35%
+  category FinalProject = 25%
+
+  late Essays: max 80%             // late essays capped at 80, still worth writing
+}

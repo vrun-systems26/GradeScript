@@ -1,0 +1,9 @@
+// SPANISH I — participation-heavy language class
+class SpanishI {
+  category Participation = 20%
+  category Homework = 20%
+  category Quizzes = 25%
+  category Exams = 35%
+
+  retake Quizzes: max 85%
+}

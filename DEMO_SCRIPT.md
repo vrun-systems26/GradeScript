@@ -1,159 +1,134 @@
 # Demo video script — full narration, ~5 minutes
 
 This is written so you can basically read it out loud and it'll make sense
-to someone who has never seen this project before. Practice it 2-3 times so
-it sounds like you, not like you're reading — but the words are all here so
-you don't have to improvise definitions on the spot.
+to someone who has never seen this project before. Practice it 2-3 times
+so it sounds like you, not like you're reading — but the words are all
+here so you don't have to improvise definitions on the spot.
 
-Every unfamiliar term is defined **the moment it's said**, not before or
-after — so you never have to assume the viewer already knows what Home
-Assistant, Node-RED, IFTTT, or a "rule" means.
+Every unfamiliar term is defined **the moment it's said**.
 
 Before recording: open a fresh browser tab at `index.html` (or `node
 serve.js` → `http://localhost:5173`) so the very first thing on screen is
-the landing page, not the tool itself. Have a terminal ready in the
-background for the CLI part near the end.
+the landing page. Have a terminal ready for the CLI part near the end.
 
-**Layout note:** the tool has two top-level tabs at the top of the page:
-**"✏️ Write & Test"** (the default view — the rule editor and the live test
-results, side by side) and **"🔄 See it Translated"** (a second tab showing
-the same rule compiled for Home Assistant, Node-RED, and IFTTT). You start
-on the first tab and switch to the second partway through.
+**Layout note:** the tool has three top-level tabs: **"📊 Build"** (the
+default — a table editor plus your live grade), **"🔄 See it
+Translated"** (the same policy as a syllabus paragraph, spreadsheet
+formula, and LMS config), and **"🎓 GPA Dashboard"** (all 6 bundled
+classes at once, with an overall GPA).
 
 ---
 
-## [0:00–0:15] Cold open — before you even share your screen
+## [0:00–0:15] Cold open
 
-> "Hi, I'm [your name]. This is PulseQL, my project for Syntax Summit."
+> "Hi, I'm [your name]. This is GradeScript, my project for Syntax
+> Summit."
 
-## [0:15–1:00] The landing page (screen: the welcome screen, untouched)
+## [0:15–1:00] The landing page
 
-*[Screen: the landing page — title, tagline, the "today vs PulseQL" comparison, green button]*
+*[Screen: the landing page — title, tagline, the "typical calculator vs GradeScript" comparison]*
 
-> "Before I touch any code, let me explain what this actually does.
+> "Quick question: have you ever used an online grade calculator? Every
+> single one makes you re-type your whole policy — every category, every
+> weight — from scratch, every time you use it. That's the problem I'm
+> solving.
 >
-> If you've set up any smart-home gadgets, you've probably run into one of
-> three platforms: **Home Assistant**, the most popular open-source
-> home-automation platform, where you write rules called 'automations' in a
-> config format called YAML. **Node-RED**, a visual tool where instead of
-> writing a script, you wire together little boxes on a canvas. Or
-> **IFTTT** — 'If This Then That' — which most people have at least heard
-> of, where you build simple rules called 'Applets.'
->
-> Here's the problem: each of those three wants your automation idea
-> written in a completely different way. So if you want the same idea
-> working in more than one — which is really common, since people mix
-> platforms — you end up writing it by hand three separate times. That's
-> this picture right here [point at the comparison box]: one idea,
-> hand-written three times, that can quietly drift out of sync.
->
-> PulseQL fixes that. You write the automation once, in plain words, and it
-> automatically produces all three versions for you. Let's click in."
+> GradeScript is a tiny language where you write your grading policy
+> **once**. From that one policy, you get a live calculator, a plain-
+> English syllabus paragraph, a spreadsheet formula, and an LMS config —
+> all generated automatically, all guaranteed to agree with each other,
+> because they all come from the same source. Let's click in."
 
 *[Action: click "Open the playground →"]*
 
-## [1:00–1:20] First look at the real interface
+## [1:00–1:20] First look
 
-*[Screen: the tool, "✏️ Write & Test" tab active by default]*
+*[Screen: the "📊 Build" tab, active by default]*
 
-> "Okay, now we're inside the actual tool. Up top: the project name, a
-> dropdown to load different example rules, and a help button if anyone
-> watching this wants a guide without me talking. Right under that,
-> there's always a one-line description telling you exactly which example
-> is loaded and what it does.
+> "This is Biology, one of six classes loaded by default. Up top: a
+> dropdown to switch classes, and a help button. We're on the 'Build' tab
+> — that's a table on the left, and my live grade on the right."
+
+## [1:20–2:00] The table editor
+
+*[Screen: point at the table]*
+
+> "This is the whole policy: Homework is worth 15%, Tests 40%, Labs 25%,
+> Final 20%. If homework comes in late, it's capped at 70% instead of
+> zero. Tests can be retaken, capped at 80%.
 >
-> There are two tabs at the top of the page. We're on 'Write & Test' right
-> now — that's the rule editor and a live tester, side by side. There's a
-> second tab, 'See it Translated,' that I'll switch to later."
+> No code, no syntax to learn — just a table. But it's not fake: click
+> 'View the generated code' — [action: click it] — and that's a real,
+> compiling program underneath. Editing the table regenerates this text
+> and re-runs it through an actual parser every time you type."
 
-## [1:20–2:00] The rule editor
+## [2:00–2:45] The live grade + the reverse solver (the big moment)
 
-*[Screen: point at the left box, "Write the rule"]*
+*[Screen: point at the right panel]*
 
-> "This left box is where you write one automation — we call it a **rule**.
-> This example is called Motion-Activated Lighting.
+> "Here's my grade right now: [read the number and letter]. Below it,
+> best case and worst case if everything ungraded goes perfectly or
+> terribly.
 >
-> Reading it out loud, in plain English: 'when a motion sensor detects
-> movement, AND the room is dark, AND it's evening or later — turn on the
-> lights.'
->
-> That's it. No special training needed to read that. Notice there are
-> even comments right next to each line, in gray, explaining what it does
-> and suggesting numbers to try changing. And right below the box — [point]
-> — this green checkmark line tells me instantly that what I wrote is
-> valid, with no typos."
+> Now here's the part almost no other calculator has: 'What do I need?'"
 
-## [2:00–3:00] The live test panel (the big moment)
+*[Action: point at the solver widget, type a target grade like 90]*
 
-*[Screen: point at the right box, "Live results"]*
+> "I just asked: what do I need on the Final to get a 90% overall? It
+> solved backward and told me the exact minimum score. Most calculators
+> only go forward — enter scores, get an average. This one answers the
+> question people actually ask their teacher: 'what do I need on the
+> final?'"
 
-> "This right box is my favorite part. It's running this exact rule, right
-> now, against 7 made-up example sensor readings — motion, temperature,
-> water, soil moisture — and showing which ones it would trigger on. Right
-> now it's correctly flagging the dark-evening motion reading and correctly
-> ignoring the six that don't match.
->
-> Now watch — I'm going to edit the rule live."
+*[Action: edit a category weight in the table live]*
 
-*[Action: click into the rule editor, change the light-level threshold, e.g. `< 20` to `< 90`]*
+> "And it's all still live — watch what happens when I change a weight —
+> [point at grade updating] — instantly recalculated, no save button."
 
-> "I just changed the rule to trigger on a much brighter room. Watch the
-> list on the right — [point] — it instantly re-checked all 7 readings
-> again, with no save button, no reload, nothing. That proves this is a
-> real, working program thinking through my rule as I type it — not a
-> video or a mockup."
+## [2:45–3:30] See it translated
 
-## [3:00–3:45] Switching tabs — the three translations
+*[Action: click "🔄 See it Translated"]*
 
-*[Action: click the "🔄 See it Translated" tab at the top of the page]*
+> "Same policy, three more formats. This is a syllabus paragraph a
+> teacher could paste straight into their course syllabus."
 
-> "Now let's switch tabs. This is the same rule I was just editing,
-> rewritten into three real smart-home formats. Watch me click through
-> them."
+*[Action: click "Spreadsheet"]*
 
-*[Action: click "Home Assistant" tab]*
+> "This is a real spreadsheet formula — paste it into Google Sheets or
+> Excel and it computes your grade from category averages."
 
-> "This is **Home Assistant's** format — remember, that's the most popular
-> open-source home-automation platform. This is exactly what you'd paste
-> into a Home Assistant config to make this automation real."
+*[Action: click "LMS Config"]*
 
-*[Action: click "Node-RED" tab]*
+> "And this approximates the kind of config a school's learning
+> management system — Canvas, for example — uses for weighted assignment
+> groups."
 
-> "This is a **Node-RED** flow — remember, the visual wire-together tool.
-> This JSON is exactly what Node-RED saves behind the scenes when you wire
-> up nodes by hand — including a real function node with actual JavaScript
-> implementing the logic, which is genuinely how you'd handle a rule this
-> specific in Node-RED."
+## [3:30–4:15] The GPA Dashboard
 
-*[Action: click "IFTTT" tab]*
+*[Action: click "🎓 GPA Dashboard"]*
 
-> "And this is an **IFTTT** Applet — the one almost everyone's heard of.
->
-> I didn't write any of these three by hand — my program read the one
-> plain rule and generated all three. And where a translation genuinely
-> can't be done perfectly — like IFTTT having no memory of previous runs
-> for time-based rules — it says so honestly instead of pretending it
-> worked."
+> "This is the feature I'm most proud of. Every grade calculator I've
+> ever seen only shows you one class. This shows all six of my default
+> classes at once, converts each grade to GPA points on the standard 4.0
+> scale, and averages them into one overall GPA — [point at the big
+> number]. Nobody else does this in a browser-based calculator."
 
-## [3:45–4:15] It's not just a website
+## [4:15–4:40] It's not just a website
 
 *[Screen: switch to terminal]*
 
-> "One more thing — this isn't only a webpage. There's also a
-> command-line version, so this could run as part of an automated setup
-> process."
+> "There's also a command-line version — same compiler, straight from a
+> terminal."
 
-*[Action: run `node cli.js compile examples/leak-prevention.shieldql --target=nodered`]*
+*[Action: run `node cli.js test examples/biology.gradescript sample-logs/logs.json`]*
 
-> "Same program, same correct output, straight from the terminal."
+## [4:40–5:00] Why it matters, and close
 
-## [4:15–5:00] Why it matters, and close
-
-> "Very few smart homes run just one platform — people mix Home Assistant
-> with Node-RED for the logic Home Assistant can't express cleanly, and
-> plenty of households only ever touch IFTTT. PulseQL means you write your
-> automation idea once, and trust it everywhere it needs to go. That's
-> PulseQL — thanks for watching."
+> "Teachers write grading policies by hand for a syllabus, and separately
+> build a spreadsheet, and separately configure an LMS — three places the
+> same idea can drift apart. GradeScript means you describe the policy
+> once, and trust it everywhere it needs to go. That's GradeScript —
+> thanks for watching."
 
 ---
 
@@ -161,41 +136,31 @@ on the first tab and switch to the second partway through.
 
 1. Land on the welcome screen → talk over it → click **"Open the
    playground →"**
-2. Point at the header (dropdown + help button) and the example
-   description line — don't click yet
-3. Point at the left box (the rule) — read it out loud, mention the inline
-   comments
-4. Point at the right box (live results) → click into the editor → change
-   the light-level number → point at the results updating live
-5. Click the **"🔄 See it Translated"** tab, top of page
-6. Click **Home Assistant** → **Node-RED** → **IFTTT**, in that order
-7. Switch to terminal → run the `node cli.js compile ...` command shown
-   above
-8. Close on the "why it matters" line — no need to go back on screen
+2. Point at the table on the "Build" tab, read a category or two out loud
+3. Click "View the generated code" to prove it's real
+4. Point at the live grade, then use the "What do I need?" solver
+5. Edit a weight in the table → point at the grade updating live
+6. Click **"🔄 See it Translated"** → click through Syllabus / Spreadsheet
+   / LMS Config
+7. Click **"🎓 GPA Dashboard"** → point at the overall GPA number
+8. Switch to terminal → run the `node cli.js test ...` command shown above
+9. Close on the "why it matters" line
 
 ## If you get a question you don't expect
 
-You don't have to know everything — it's fine to say "that's a great
-question, let me follow up" — but here are the ones most likely to come
-up:
-
-- **"Isn't this just a converter between existing formats?"** — "Fair
-  question, but PulseQL isn't converting an existing Home Assistant config
-  into Node-RED — it's a purpose-built *authoring* language with its own
-  live tester built in, so you can prove a rule actually does what you
-  want before you ever export it anywhere."
-- **"What happens if the rule uses `or` or `not`?"** — "The Node-RED and
-  IFTTT targets handle it natively, since they both compile to real
-  JavaScript conditions. Home Assistant's template trigger also supports
-  it directly through Jinja-style `and`/`or`/`not`."
-- **"Can this be extended to more platforms?"** — "Yes — since everything
-  reads from one shared parsed structure, adding a new target like openHAB
-  or SmartThings is one new function, not a language change."
-- **"Does `within 3m` actually check readings over a real 3-minute
-  window?"** — Answer honestly here, this is the most likely sharp
-  question: "Not in the current interpreter. `within` gets passed through
-  to each target's own time-window mechanism where one exists — like Home
-  Assistant's `for:` key — so the *generated code* is correct. But the
-  local live-tester evaluates one reading at a time, not a rolling window
-  across a sequence of readings. Real temporal correlation is a natural
-  next step, not something I'm claiming this version already does."
+- **"Is the GPA Dashboard live-linked to what I edit on the Build tab?"**
+  — Answer honestly: "Not yet — the dashboard shows a snapshot of the 6
+  default classes with their own sample data. That's stated in the
+  dashboard's own caption, not hidden. Linking it to live edits is a
+  natural next step."
+- **"How does the reverse solver handle more than one ungraded
+  category?"** — "It solves for whichever one category you pick,
+  conservatively assuming any *other* still-ungraded category scores
+  zero — the safe, guaranteed-achievable answer, not an optimistic one."
+- **"What happens if I type a category name with a space, like 'Extra
+  Credit'?"** — "It gets sanitized into a valid identifier automatically
+  — 'Extra_Credit' — behind the scenes, while the table keeps showing
+  what you actually typed."
+- **"Can this be extended to more formats?"** — "Yes — everything reads
+  from one shared parsed structure, so adding a new target is one new
+  function, not a language change."

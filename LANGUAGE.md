@@ -1,76 +1,51 @@
-# PulseQL language reference
+# GradeScript language reference
 
-## A rule
+## A class
 
-Every PulseQL source file (or playground buffer) is one or more `rule`
+Every GradeScript source file (or playground state) is one or more `class`
 blocks:
 
 ```
-rule <Name> {
-  when <expression>
-  within <duration>          // optional
-  severity: <low|medium|high|critical>   // optional, defaults to medium
-  tags: <string>, <string>, ...          // optional
-  description: <string>                  // optional
+class <Name> {
+  category <Name> = <percent>%
+  category <Name> = <percent>%
+  ...
+
+  late <Category>: max <percent>%      // optional, any number of these
+  retake <Category>: max <percent>%    // optional, any number of these
 }
 ```
 
-- `<Name>` is a bare identifier (letters, digits, underscore; must not start
-  with a digit).
-- `when` is required and must be present exactly once.
-- `within`, `severity`, `tags`, and `description` are optional and may
-  appear in any order.
+- `<Name>` is a bare identifier (letters, digits, underscore; must not
+  start with a digit). The table editor sanitizes friendly text like
+  "Extra Credit" into a valid identifier (`Extra_Credit`) automatically.
+- At least one `category` line is required.
+- `late` and `retake` lines are optional metadata attached to a category
+  by name — they don't need to appear in any particular order relative to
+  the categories.
+- Category weights don't have to sum to exactly 100 while you're
+  experimenting — the tools will warn you, not refuse to compile.
 
-## Expressions
+## Grammar
 
 ```
-expr       := or
-or         := and ( "or" and )*
-and        := unary ( "and" unary )*
-unary      := "not" unary | comparison
-comparison := primary ( op primary )?
-op         := "==" | "!=" | ">=" | "<=" | ">" | "<" | "contains"
-primary    := path | STRING | NUMBER | DURATION | "true" | "false" | "(" or ")"
-path       := IDENT ( "." IDENT )*
+program   := class+
+class     := "class" IDENT "{" statement* "}"
+statement := category | late | retake
+category  := "category" IDENT "=" PERCENT
+late      := "late" IDENT ":" "max" PERCENT
+retake    := "retake" IDENT ":" "max" PERCENT
 ```
 
-`and` binds tighter than `or`, matching most C-family languages. Use
-parentheses to override precedence, e.g. `(a or b) and c`.
-
-## Fields
-
-Fields are referenced as dotted paths. By convention the two roots are:
-
-- `sensor.*` — fields on the sensor reading being evaluated (e.g.
-  `sensor.type`, `sensor.light_level`, `sensor.leak_detected`).
-- `home.*` — fields on the whole-home state associated with the reading
-  (e.g. `home.occupancy_count`, `home.hour`).
-
-Any root name is legal — the interpreter resolves whatever context object
-you pass it — but `sensor` and `home` are what the code generators and
-sample data use.
+There is no boolean expression language in GradeScript — unlike a rules
+DSL, a grading policy is a flat declaration, not a condition to evaluate.
+That's a deliberate simplicity choice, not a missing feature.
 
 ## Literals
 
-- **String:** `"double quoted"`, supports `\"` and `\\` escapes.
-- **Number:** `5`, `20`, `500000000`, `0.5`.
-- **Duration:** a number immediately followed by a unit with no space —
-  `10m`, `30s`, `1h`, `7d`, `500ms`. Valid units: `ms`, `s`, `m`, `h`, `d`.
-  Durations are only meaningful after `within` in the current version.
-- **Boolean:** `true`, `false`.
-
-## Operators
-
-| Operator   | Meaning                          |
-|------------|-----------------------------------|
-| `==`       | equal                             |
-| `!=`       | not equal                         |
-| `>=` `<=`  | greater/less than or equal        |
-| `>` `<`    | greater/less than                 |
-| `contains` | left string contains right string |
-| `and`      | logical and (short-circuiting)    |
-| `or`       | logical or (short-circuiting)     |
-| `not`      | logical negation                  |
+- **Percent:** a number immediately followed by `%` with no space — `15%`,
+  `100%`, `0.5%`. This is the only numeric literal the language has; plain
+  numbers without a `%` aren't valid anywhere in a `class` block.
 
 ## Comments
 
@@ -79,28 +54,45 @@ sample data use.
 ## Full example
 
 ```
-// Shuts off the main water valve if a leak is detected and nobody has
-// acknowledged it within a few minutes.
-rule LeakPrevention {
-  when sensor.type == "water"
-    and sensor.leak_detected == true
-    and home.alert_acknowledged == false
-  within 3m
-  severity: critical
-  tags: "safety", "water-damage"
-  description: "Shut off the main water valve if a leak is detected and nobody has acknowledged it"
+// BIOLOGY — a typical weighted-category grading policy
+class Biology {
+  category Homework = 15%
+  category Tests = 40%
+  category Labs = 25%
+  category Final = 20%
+
+  late Homework: max 70%
+  retake Tests: max 80%
 }
 ```
 
+## The calculator (not part of the grammar, but part of the language's meaning)
+
+A `class` on its own is just a policy. To get a grade, it's evaluated
+against a list of grade entries — plain JSON objects, not GradeScript
+source:
+
+```json
+{ "category": "Homework", "score": 92 }
+{ "category": "Homework", "score": 58, "late": true }
+{ "category": "Tests", "score": 85, "isRetake": true }
+```
+
+`late: true` applies the category's late cap (if one exists) to that
+entry's score; `isRetake: true` applies the retake cap the same way.
+`computeGrade` averages entries within each category, then computes a
+weighted overall grade — see `README.md`'s "How it works" for the full
+pipeline, and `engine.js` for the actual math (it's short).
+
 ## Grammar notes for the curious
 
-- The lexer, parser, interpreter, and all three code generators live in a
+- The lexer, parser, calculator, and all three code generators live in a
   single dependency-free file, [`engine.js`](engine.js), so the whole
   language implementation is readable top to bottom in one sitting.
-- The parser is a straightforward recursive-descent implementation — there's
-  no parser generator or grammar DSL involved, which keeps error messages
+- The parser is a straightforward recursive-descent implementation — no
+  parser generator or grammar DSL involved, which keeps error messages
   precise (`ParseError` and `LexError` carry line/column information).
-- The interpreter and the three code generators all walk the *same* AST
-  produced by the parser — none of them re-parses or re-derives it — which
-  is what guarantees a rule can't silently mean something different in
-  Node-RED than it does in Home Assistant.
+- The calculator and all three code generators walk the *same* AST
+  produced by the parser — none of them re-parses or re-derives it —
+  which is what guarantees the number on screen and the formula you paste
+  into a spreadsheet can't quietly disagree with each other.

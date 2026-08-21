@@ -2,24 +2,23 @@
 
 ## Part 1 — Test it yourself, step by step
 
-You need Node.js installed (you likely already have it, since `npm`/`node`
-commands show up elsewhere on this machine). No other install is required.
+You need Node.js installed. No other install is required.
 
 1. Open a terminal and go to the project folder:
    ```bash
    cd path/to/ShieldQL
    ```
-2. Run the automated test suite. This parses all 4 example rules, compiles
-   each to Home Assistant/Node-RED/IFTTT, and runs the interpreter against
-   7 sample sensor readings — it should print `ALL OK` at the end:
+2. Run the automated test suite. This parses all 6 example policies,
+   compiles each to syllabus/spreadsheet/LMS format, and runs the
+   calculator against sample grade entries — it should print `ALL OK`:
    ```bash
    node test-smoke.js
    ```
 3. Try the command-line compiler yourself:
    ```bash
-   node cli.js compile examples/motion-lighting.shieldql
-   node cli.js compile examples/energy-saver.shieldql --target=nodered
-   node cli.js test examples/leak-prevention.shieldql sample-logs/logs.json
+   node cli.js compile examples/biology.gradescript
+   node cli.js compile examples/biology.gradescript --target=spreadsheet
+   node cli.js test examples/biology.gradescript sample-logs/logs.json
    ```
 4. Open the web playground. Either double-click `index.html`, or serve it
    properly (recommended, avoids browser file-access quirks):
@@ -27,80 +26,60 @@ commands show up elsewhere on this machine). No other install is required.
    node serve.js
    ```
    then open `http://localhost:5173` in a browser.
-5. In the playground: click through the landing slides, pick each example
-   from the dropdown, watch the status bar confirm it parsed, edit a number
-   and watch the live results update, then switch to the "See it
-   Translated" tab and click through the 3 output tabs.
-6. Break something on purpose to see error handling: delete a `{` or
-   misspell `and` — the status bar should turn red with a specific error
-   message, and the output/test panels should clear rather than show stale
-   or wrong results.
-7. Try writing your own rule from scratch using `LANGUAGE.md` as a
-   reference, to convince yourself you actually understand the syntax (and
-   so you can answer questions about it).
+5. In the playground: click through the landing slides, pick each class
+   from the dropdown, edit a weight in the table and watch the grade
+   update, try the "What do I need?" solver, then check the "See it
+   Translated" and "GPA Dashboard" tabs.
+6. Break something on purpose: delete every category from a policy, or
+   set a weight to a huge number — the status bar and weight-total
+   indicator should react clearly, not silently show something wrong.
+7. Try building your own class from scratch using the "✏️ Start your own
+   (blank)" entry in the dropdown, to convince yourself the table editor
+   actually works for a real use case, not just the presets.
 
 ## Part 2 — Interface tour (so you know exactly where to click while filming)
 
 **Landing page (opens first)** — 3 slides: a minimal title slide with a
-decode/glitch text animation, a "why this exists" slide with the
-today-vs-PulseQL comparison, and a "try it in 30 seconds" slide. Dots at
-the bottom let you jump between slides; the button reads "Next →" until
-the last slide, then becomes "Open the playground →".
+letter-by-letter reveal, a "why this exists" slide with the
+typical-calculator-vs-GradeScript comparison, and a "try it in 30
+seconds" slide. Dots at the bottom navigate; the button reads "Next →"
+until the last slide, then becomes "Open the playground →".
 
-**Header (very top of the tool)**
-- Left: the **PulseQL** logo, a small "DSL compiler" badge, and a line
-  underneath showing the currently-loaded example's name and a
-  one-sentence description — updates the moment you change the dropdown.
-- Right side: the **"Load example"** dropdown — swaps which of the 5
-  built-in rules (4 real examples + 1 blank template) is loaded into the
-  editor.
-- Far right: a **"❓ How to use this"** button — opens a slide-in panel
-  from the right with a step-by-step guide and a mini glossary. Good to
-  point out in the video ("and if a judge opens this without me, there's a
-  help button right here").
+**Header** — Left: the **GradeScript** logo, a "DSL compiler" badge, and
+a line showing the currently-loaded class's name and a one-sentence
+description. Right: the **"Load class"** dropdown (6 classes + blank
+template) and a **"❓ How to use this"** help button.
 
-**Two top-level tabs, just under the header**
-- **"✏️ Write & Test"** (the default) and **"🔄 See it Translated."** Only
-  one is visible at a time — this is the main navigation of the whole
-  page, and worth calling out explicitly on camera the first time.
+**Three top-level tabs, just under the header**
 
-**Tab 1 — "Write & Test" — two boxes side by side**
-- **Left box, "Write the rule":** the rule editor. Syntax-highlighted
-  (pink = keywords, green = strings, yellow = numbers), with gray inline
-  comments next to each line explaining what it checks and suggesting
-  numbers to try. Directly under it: a **status bar** — green ✓ when the
-  rule parses correctly (name, priority, time window, tags), red ✗ with
-  the specific error if something's broken.
-- **Right box, "Live results":** a count at the top ("`N / 7 sample
-  readings matched this rule`"), then 7 rows — one per sample sensor
-  reading — each with a colored badge (**MATCH** green, **no match** gray,
-  **ERROR** red) and a plain-English label. Edit any number on the left
-  and this updates instantly — the single best thing to demonstrate on
-  camera, since it proves the tool is really running, not displaying
-  pre-made screenshots.
+**Tab 1 — "📊 Build" — two boxes side by side**
+- **Left box, "Build the policy":** a class-name field, then a table —
+  Category / Weight / Late cap / Retake cap / delete button — with an
+  "+ Add category" button and a live weight-total indicator (turns green
+  at exactly 100%). Below that, a collapsed **"👀 View the generated
+  code"** disclosure showing the real compiled source, read-only.
+- **Right box, "Live results":** a big animated grade number and letter,
+  a reassuring caption, best/worst case, a category breakdown table, and
+  the **"🎯 What do I need?"** reverse-solver widget — pick a category
+  and a target grade, get the minimum score needed.
 
-**Tab 2 — "See it Translated" — one full-width box**
-- Three pill-shaped buttons: **Home Assistant**, **Node-RED**, **IFTTT**.
-  Click any to see that platform's version of the current rule.
+**Tab 2 — "🔄 See it Translated" — one full-width box**
+- Three pill buttons: **Syllabus**, **Spreadsheet**, **LMS Config**.
 
-**Footer (very bottom)**
-- One line noting it's zero-install, with links to `LANGUAGE.md` (full
-  syntax reference) and `GLOSSARY.md` (every term explained).
+**Tab 3 — "🎓 GPA Dashboard" — one full-width box**
+- A big overall GPA number, then a table of all 6 default classes with
+  their current grade, letter, and GPA points.
+
+**Footer** — Zero-install note, links to `LANGUAGE.md` and `GLOSSARY.md`.
 
 ### Suggested filming path
 
-1. Start on the landing page's minimal title slide, let the decode
-   animation play, click through the 3 slides, then "Open the playground".
-2. Land on the default-loaded "Motion-Activated Lighting" example, on the
-   "Write & Test" tab — don't touch anything yet, let viewers see the
-   initial state.
-3. Narrate the left box (the rule, in plain words, mention the inline
-   comments).
-4. Edit a number in the left box live, and hold the camera on the right
-   box so the viewer visibly sees a row flip from "no match" to "MATCH"
-   (or vice versa) with zero delay.
-5. Click the **"🔄 See it Translated"** tab, then click through its 3
-   pill buttons.
-6. Optionally switch the dropdown back on "Write & Test" to a second
-   example (e.g. "Leak Prevention") to prove it isn't a one-off demo.
-7. Cut to the terminal for the CLI portion (see `DEMO_SCRIPT.md`).
+1. Start on the landing page's title slide, click through all 3 slides,
+   then "Open the playground".
+2. Land on Biology, on the "Build" tab — read the table out loud.
+3. Click "View the generated code" briefly, then close it.
+4. Use the "What do I need?" solver with a couple of different targets.
+5. Edit a weight in the table live, point at the grade updating.
+6. Click "🔄 See it Translated" → click through all 3 pill buttons.
+7. Click "🎓 GPA Dashboard" → point at the overall GPA.
+8. Cut to the terminal for the CLI portion (see `DEMO_SCRIPT.md`).

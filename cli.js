@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 const fs = require("fs");
-const PulseQL = require("./engine.js");
+const GradeScript = require("./engine.js");
 
 function usage() {
-  console.log(`PulseQL CLI
+  console.log(`GradeScript CLI
 
 Usage:
-  node cli.js compile <file.shieldql>               Show all three compiled targets
-  node cli.js compile <file.shieldql> --target=X     X = homeassistant | nodered | ifttt
-  node cli.js test <file.shieldql> <logs.json>       Run the rule's interpreter against sample events
+  node cli.js compile <file.gradescript>               Show all three compiled targets
+  node cli.js compile <file.gradescript> --target=X     X = syllabus | spreadsheet | lms
+  node cli.js test <file.gradescript> <grades.json>     Run the calculator against sample grades
 `);
 }
 
@@ -22,12 +22,12 @@ function cmdCompile(args) {
   const targetArg = args.find((a) => a.startsWith("--target="));
   const target = targetArg ? targetArg.split("=")[1] : null;
 
-  const rule = PulseQL.compileOne(readSource(file));
+  const cls = GradeScript.compileOne(readSource(file));
 
   const targets = {
-    homeassistant: () => PulseQL.toHomeAssistant(rule),
-    nodered: () => PulseQL.toNodeRED(rule),
-    ifttt: () => PulseQL.toIFTTT(rule),
+    syllabus: () => GradeScript.toSyllabus(cls),
+    spreadsheet: () => GradeScript.toSpreadsheet(cls),
+    lms: () => GradeScript.toLMS(cls),
   };
 
   if (target) {
@@ -43,18 +43,19 @@ function cmdCompile(args) {
 }
 
 function cmdTest(args) {
-  const [ruleFile, logsFile] = args;
-  if (!ruleFile || !logsFile) return usage();
-  const rule = PulseQL.compileOne(readSource(ruleFile));
-  const logs = JSON.parse(fs.readFileSync(logsFile, "utf8"));
+  const [classFile, gradesFile] = args;
+  if (!classFile || !gradesFile) return usage();
+  const cls = GradeScript.compileOne(readSource(classFile));
+  const entries = JSON.parse(fs.readFileSync(gradesFile, "utf8"));
 
-  let matches = 0;
-  for (const entry of logs) {
-    const { matched, error } = PulseQL.runRule(rule, { sensor: entry.sensor, home: entry.home || {} });
-    if (matched) matches++;
-    console.log(`${matched ? "MATCH   " : "no-match"} | ${entry.label || JSON.stringify(entry.sensor)}${error ? " | ERROR: " + error : ""}`);
+  const result = GradeScript.computeGrade(cls, entries);
+  console.log(`Grades entered: ${entries.length}`);
+  for (const b of result.breakdown) {
+    console.log(`  ${b.category} (${b.weight}%): ${b.hasData ? b.average.toFixed(1) + "%" : "no data yet"}`);
   }
-  console.log(`\n${matches} / ${logs.length} events matched rule '${rule.name}'`);
+  console.log(`\nCurrent grade:  ${result.currentGrade === null ? "n/a" : result.currentGrade.toFixed(1) + "% (" + result.currentLetter + ")"}`);
+  console.log(`Best possible:  ${result.bestPossible.toFixed(1)}% (${result.bestLetter})`);
+  console.log(`Worst possible: ${result.worstPossible.toFixed(1)}% (${result.worstLetter})`);
 }
 
 function main() {

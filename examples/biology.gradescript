@@ -1,0 +1,10 @@
+// BIOLOGY — a typical weighted-category grading policy
+class Biology {
+  category Homework = 15%          // daily assignments
+  category Tests = 40%             // unit tests
+  category Labs = 25%              // lab reports
+  category Final = 20%             // cumulative final exam
+
+  late Homework: max 70%           // turned in late? capped at 70, not zero
+  retake Tests: max 80%            // may retake a test, capped at 80
+}
