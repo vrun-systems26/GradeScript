@@ -2,8 +2,6 @@
 
 **Write your grading policy once. Get a live calculator, a syllabus paragraph, a spreadsheet formula, and an LMS config — automatically.**
 
-Built for [Build Beyond](https://build-beyond-hackathon.devpost.com/).
-
 ## The problem
 
 Most online grade calculators make you type your whole policy into a form
